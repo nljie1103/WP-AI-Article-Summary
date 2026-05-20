@@ -4,7 +4,7 @@ Tags: ai, summary, openai, gemini, deepseek, claude, qwen, kimi, doubao, glm, an
 Requires at least: 5.8
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,14 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 3. 在左侧菜单「首页与加载开屏」中配置 API 与样式
 
 == Changelog ==
+
+= 1.0.2 =
+* 🎯 主题兼容性大幅增强：新增「注入模式」设置（自动 / 仅 the_content / 仅 JS 注入 / 仅短代码 / 完全手动）。
+* 🎯 新增 wp_footer 模板 + JS DOM 智能注入，兼容 Zibll / Astra / Divi / Elementor / 块编辑器主题 / FSE 等绕过 the_content 的商用主题。
+* 🎯 新增 MutationObserver 监听，自动适配 SPA / 懒加载 / 延迟渲染主题。
+* 🎯 新增 `[wpaias_summary]` 短代码与 `wpaias_render_summary()` 模板函数，便于主题作者手动放置。
+* 🎯 新增 CSS 选择器与注入位置（prepend/append/before/after）可配置。
+* 🛡️ 内置 20+ 主流主题文章容器选择器作为兜底（.entry-content、.post-content、.typo、.elementor-widget-theme-post-content 等）。
 
 = 1.0.1 =
 * 修复：分 Tab 提交时其它 Tab 设置被意外清空的问题（保存 API 设置不会再关闭全局开关等）。

@@ -213,6 +213,22 @@ class WPAIAS_Admin {
 				$ids = preg_replace( '/[^0-9,\s]/', '', (string) $input['exclude_post_ids'] );
 				$out['exclude_post_ids'] = trim( (string) $ids );
 			}
+
+			// 注入模式。
+			$valid_methods = array( 'auto', 'content_filter', 'js', 'shortcode_only', 'manual' );
+			if ( isset( $input['insert_method'] ) && in_array( $input['insert_method'], $valid_methods, true ) ) {
+				$out['insert_method'] = $input['insert_method'];
+			}
+			if ( isset( $input['js_selector'] ) ) {
+				// 允许逗号、字母、数字、点、井号、空格、连字符、下划线、方括号、引号、括号、冒号、星号、~、>、+、=
+				$sel = wp_strip_all_tags( (string) $input['js_selector'] );
+				$sel = preg_replace( '/[^a-zA-Z0-9\.\#\s,\-_\[\]\'\"\(\)\:\*\~\>\+\=\/]/u', '', $sel );
+				$out['js_selector'] = trim( (string) $sel );
+			}
+			$valid_positions = array( 'prepend', 'append', 'before', 'after' );
+			if ( isset( $input['js_position'] ) && in_array( $input['js_position'], $valid_positions, true ) ) {
+				$out['js_position'] = $input['js_position'];
+			}
 		}
 
 		// Tab2 — AI 接口设置。
@@ -408,6 +424,64 @@ class WPAIAS_Admin {
 									<input type="checkbox" name="<?php echo esc_attr( $opt ); ?>[mobile_enable]" value="1" <?php checked( 1, (int) $settings['mobile_enable'] ); ?>>
 									<span class="wpaias-slider"></span>
 								</label>
+							</td>
+						</tr>
+					</table>
+
+					<h3 class="wpaias-section-title"><?php esc_html_e( '主题兼容性 · 注入方式', 'wp-ai-article-summary' ); ?></h3>
+					<table class="form-table wpaias-table">
+						<tr>
+							<th><label><?php esc_html_e( '注入模式', 'wp-ai-article-summary' ); ?></label></th>
+							<td>
+								<?php
+								$methods = array(
+									'auto'           => __( '自动（推荐）— 优先 the_content，找不到再用 JS DOM 注入兜底，兼容性最强', 'wp-ai-article-summary' ),
+									'content_filter' => __( '仅 the_content — 仅默认主题、Twenty 系列等标准主题', 'wp-ai-article-summary' ),
+									'js'             => __( '仅 JS 注入 — Zibll / Astra / Divi / Elementor / 块编辑器主题 / FSE 推荐', 'wp-ai-article-summary' ),
+									'shortcode_only' => __( '仅短代码 — 使用 [wpaias_summary] 手动放置', 'wp-ai-article-summary' ),
+									'manual'         => __( '完全手动 — 在主题模板中调用 wpaias_render_summary()', 'wp-ai-article-summary' ),
+								);
+								foreach ( $methods as $val => $label ) {
+									$ck = ( $settings['insert_method'] === $val );
+									echo '<label style="display:block;margin:6px 0;"><input type="radio" name="' . esc_attr( $opt ) . '[insert_method]" value="' . esc_attr( $val ) . '" ' . checked( $ck, true, false ) . '> ' . esc_html( $label ) . '</label>';
+								}
+								?>
+								<p class="description"><?php esc_html_e( '当某些商业主题（如 Zibll、Astra Pro、Divi、Elementor、Block-based 主题）不显示摘要时，切换到「自动」或「仅 JS 注入」即可解决。', 'wp-ai-article-summary' ); ?></p>
+							</td>
+						</tr>
+						<tr>
+							<th><label><?php esc_html_e( '文章容器 CSS 选择器', 'wp-ai-article-summary' ); ?></label></th>
+							<td>
+								<input type="text" class="large-text code" name="<?php echo esc_attr( $opt ); ?>[js_selector]" value="<?php echo esc_attr( $settings['js_selector'] ); ?>">
+								<p class="description">
+									<?php esc_html_e( '逗号分隔；按顺序匹配第一个存在的元素作为注入目标。常见：.entry-content、.post-content、.article-content、.typo、.single-content。', 'wp-ai-article-summary' ); ?>
+									<br>
+									<?php esc_html_e( '示例（Zibll）: ', 'wp-ai-article-summary' ); ?><code>.entry-content, .article-content, .post-content, .typo</code>
+								</p>
+							</td>
+						</tr>
+						<tr>
+							<th><label><?php esc_html_e( 'JS 注入位置', 'wp-ai-article-summary' ); ?></label></th>
+							<td>
+								<select name="<?php echo esc_attr( $opt ); ?>[js_position]">
+									<option value="prepend" <?php selected( 'prepend', $settings['js_position'] ); ?>><?php esc_html_e( '插入到容器顶部（推荐）', 'wp-ai-article-summary' ); ?></option>
+									<option value="append"  <?php selected( 'append',  $settings['js_position'] ); ?>><?php esc_html_e( '插入到容器底部', 'wp-ai-article-summary' ); ?></option>
+									<option value="before"  <?php selected( 'before',  $settings['js_position'] ); ?>><?php esc_html_e( '插入到容器之前', 'wp-ai-article-summary' ); ?></option>
+									<option value="after"   <?php selected( 'after',   $settings['js_position'] ); ?>><?php esc_html_e( '插入到容器之后', 'wp-ai-article-summary' ); ?></option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<th><label><?php esc_html_e( '手动放置方式', 'wp-ai-article-summary' ); ?></label></th>
+							<td>
+								<p>
+									<?php esc_html_e( '短代码（编辑器内可直接粘贴）：', 'wp-ai-article-summary' ); ?>
+									<code>[wpaias_summary]</code>
+								</p>
+								<p>
+									<?php esc_html_e( '模板函数（主题/子主题 single.php 中调用）：', 'wp-ai-article-summary' ); ?>
+									<code>&lt;?php if ( function_exists( 'wpaias_render_summary' ) ) wpaias_render_summary(); ?&gt;</code>
+								</p>
 							</td>
 						</tr>
 					</table>

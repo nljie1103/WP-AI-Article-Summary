@@ -94,6 +94,11 @@ class WPAIAS_Plugin {
 			'exclude_categories' => array(),
 			'exclude_post_ids'   => '',
 
+			// 注入模式（兼容各种主题）。
+			'insert_method'      => 'auto',
+			'js_selector'        => '.entry-content, .post-content, .article-content, .single-content, .article__content, .post__content, .post-single .post-content, article .content-area, article.post .content, main article .entry-content, main .post-content, #content article, .single .article-content, .typo, .single-content-wrap, .post .content',
+			'js_position'        => 'prepend',
+
 			// Tab2.
 			'provider'           => 'openai',
 			'model'              => 'gpt-4o-mini',

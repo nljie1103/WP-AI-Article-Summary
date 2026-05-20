@@ -34,6 +34,16 @@
 
 .wpaias-tabs { margin-bottom: 18px; }
 
+.wpaias-section-title {
+	margin-top: 30px;
+	padding: 10px 14px;
+	background: linear-gradient(90deg, #f0f6ff, transparent);
+	border-left: 3px solid #2271b1;
+	font-size: 14px;
+	font-weight: 600;
+	color: #2271b1;
+}
+
 .wpaias-table th { width: 200px; vertical-align: top; padding-top: 14px; }
 .wpaias-table td { padding-top: 10px; }
 

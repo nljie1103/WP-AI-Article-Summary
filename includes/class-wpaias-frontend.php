@@ -1,6 +1,10 @@
 <?php
 /**
- * 前端展示：自动插入文章顶部 AI 摘要卡片。
+ * 前端展示：
+ *  - 通过 the_content 自动注入（绝大多数主题）
+ *  - 通过 wp_footer 输出 <template> + JS DOM 注入（兼容 Zibll / Astra / Divi / Elementor / FSE 等绕过 the_content 的主题）
+ *  - 提供 [wpaias_summary] 短代码（手动放置）
+ *  - 提供 PHP 模板函数 wpaias_render_summary() （主题作者可调用）。
  *
  * @package WP_AI_Article_Summary
  */
@@ -15,12 +19,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WPAIAS_Frontend {
 
 	/**
+	 * 已经渲染过摘要的 post_id 列表，防止重复输出。
+	 *
+	 * @var array<int,bool>
+	 */
+	protected $rendered = array();
+
+	/**
 	 * 注册 hooks。
 	 */
 	public function register() {
+		// 主入口：the_content（兼容性最佳，覆盖大多数主题）。
 		add_filter( 'the_content', array( $this, 'inject_summary' ), 9 );
+
+		// 资源 & 样式。
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 		add_action( 'wp_head', array( $this, 'print_inline_styles' ), 99 );
+
+		// 终极兼容：footer 输出 <template>，JS 智能找位置注入。
+		add_action( 'wp_footer', array( $this, 'print_dom_inject_template' ), 1 );
+
+		// 短代码 / 模板函数。
+		add_shortcode( 'wpaias_summary', array( $this, 'shortcode_handler' ) );
 
 		// 前端 Ajax 兜底（首次访问自动生成；非登录用户也可使用）。
 		add_action( 'wp_ajax_wpaias_front_generate', array( $this, 'ajax_front_generate' ) );
@@ -33,7 +53,7 @@ class WPAIAS_Frontend {
 	 * @return bool
 	 */
 	public function should_show() {
-		if ( is_admin() || is_feed() || is_search() || is_archive() || is_home() || is_front_page() ) {
+		if ( is_admin() || is_feed() || is_search() ) {
 			return false;
 		}
 		if ( ! is_singular() ) {
@@ -77,7 +97,7 @@ class WPAIAS_Frontend {
 	}
 
 	/**
-	 * 注入文章顶部摘要。
+	 * 注入文章顶部摘要（the_content 模式）。
 	 *
 	 * @param string $content 文章内容。
 	 * @return string
@@ -90,14 +110,30 @@ class WPAIAS_Frontend {
 			return $content;
 		}
 
-		$post     = get_post();
-		$settings = WPAIAS_Plugin::get_settings();
-		$cached   = WPAIAS_Cache::get( $post->ID );
+		$post = get_post();
+		if ( ! $post ) {
+			return $content;
+		}
 
-		$html = $this->build_card_html( $post, $cached === false ? '' : (string) $cached, $settings );
+		// 防止同一文章多次注入（widget、related posts 也用 the_content）。
+		if ( isset( $this->rendered[ $post->ID ] ) ) {
+			return $content;
+		}
+
+		$settings = WPAIAS_Plugin::get_settings();
+		$method   = isset( $settings['insert_method'] ) ? $settings['insert_method'] : 'auto';
+
+		// 用户选了 shortcode_only / js / manual 模式时，跳过 the_content 注入。
+		if ( in_array( $method, array( 'shortcode_only', 'js', 'manual' ), true ) ) {
+			return $content;
+		}
+
+		$cached = WPAIAS_Cache::get( $post->ID );
+		$html   = $this->build_card_html( $post, false === $cached ? '' : (string) $cached, $settings );
+
+		$this->rendered[ $post->ID ] = true;
 
 		$position = isset( $settings['position'] ) ? $settings['position'] : 'before_content';
-
 		switch ( $position ) {
 			case 'after_first_paragraph':
 				$pos = stripos( $content, '</p>' );
@@ -111,6 +147,78 @@ class WPAIAS_Frontend {
 			default:
 				return $html . $content;
 		}
+	}
+
+	/**
+	 * 短代码：[wpaias_summary]
+	 *
+	 * @param array|string $atts shortcode atts.
+	 * @return string
+	 */
+	public function shortcode_handler( $atts ) {
+		if ( is_feed() ) {
+			return '';
+		}
+		$post = get_post();
+		if ( ! $post ) {
+			return '';
+		}
+
+		// 短代码下，强制视为已渲染，避免与自动注入重复。
+		$this->rendered[ $post->ID ] = true;
+
+		$settings = WPAIAS_Plugin::get_settings();
+		$cached   = WPAIAS_Cache::get( $post->ID );
+
+		return $this->build_card_html( $post, false === $cached ? '' : (string) $cached, $settings );
+	}
+
+	/**
+	 * footer 输出兼容性兜底模板：
+	 *   - 当主题完全绕过 the_content（如 Zibll / Elementor / Divi / FSE 等）时，
+	 *     由 JS 把模板内容根据 CSS 选择器插入到文章容器中。
+	 *   - 当 the_content 已成功注入时，本逻辑会被 JS 检测到 .wpaias-summary 已存在而跳过。
+	 *
+	 * @return void
+	 */
+	public function print_dom_inject_template() {
+		if ( ! $this->should_show() ) {
+			return;
+		}
+		$settings = WPAIAS_Plugin::get_settings();
+		$method   = isset( $settings['insert_method'] ) ? $settings['insert_method'] : 'auto';
+
+		// 手动 / shortcode_only 模式，不输出 DOM 注入模板。
+		if ( in_array( $method, array( 'manual', 'shortcode_only' ), true ) ) {
+			return;
+		}
+
+		// content_filter 模式下，如果 the_content 没成功（页面里没找到 .wpaias-summary），JS 也会兜底注入。
+		// 这里始终输出模板，让 JS 自己判断。
+
+		$post = get_post();
+		if ( ! $post ) {
+			return;
+		}
+
+		$cached    = WPAIAS_Cache::get( $post->ID );
+		$html      = $this->build_card_html( $post, false === $cached ? '' : (string) $cached, $settings );
+		$selectors = isset( $settings['js_selector'] ) ? $settings['js_selector'] : '';
+		if ( '' === trim( $selectors ) ) {
+			$selectors = '.entry-content, .post-content, .article-content, .single-content';
+		}
+		$position = isset( $settings['js_position'] ) ? $settings['js_position'] : 'prepend';
+		if ( ! in_array( $position, array( 'prepend', 'append', 'before', 'after' ), true ) ) {
+			$position = 'prepend';
+		}
+
+		// 输出隐藏的 template 元素，由 frontend.js 负责注入。
+		?>
+		<template id="wpaias-summary-template"
+			data-selectors="<?php echo esc_attr( $selectors ); ?>"
+			data-position="<?php echo esc_attr( $position ); ?>"
+			data-method="<?php echo esc_attr( $method ); ?>"><?php echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — already escaped in build_card_html ?></template>
+		<?php
 	}
 
 	/**
@@ -272,5 +380,20 @@ class WPAIAS_Frontend {
 
 		// 失败不缓存。
 		wp_send_json_error( array( 'message' => $result['message'] ) );
+	}
+}
+
+/**
+ * 模板函数：主题作者可在模板中直接调用打印 AI 摘要。
+ *
+ * 用法： <?php if ( function_exists( 'wpaias_render_summary' ) ) wpaias_render_summary(); ?>
+ *
+ * @return void
+ */
+if ( ! function_exists( 'wpaias_render_summary' ) ) {
+	function wpaias_render_summary() {
+		if ( class_exists( 'WPAIAS_Plugin' ) ) {
+			echo do_shortcode( '[wpaias_summary]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
 	}
 }
