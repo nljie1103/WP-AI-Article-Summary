@@ -1,0 +1,219 @@
+/* ==========================================================================
+   九流 - AI 摘要插件 · 前端样式（暗黑极简卡片）
+   ========================================================================== */
+
+.wpaias-summary {
+	box-sizing: border-box;
+	background: #1a1a1a;
+	color: #ccc;
+	border: 1px solid #333;
+	border-radius: 8px;
+	padding: 18px 22px;
+	margin: 0 0 26px;
+	font-size: 15px;
+	line-height: 1.85;
+	position: relative;
+	overflow: hidden;
+	-webkit-font-smoothing: antialiased;
+}
+
+.wpaias-summary *,
+.wpaias-summary *:before,
+.wpaias-summary *:after {
+	box-sizing: border-box;
+}
+
+.wpaias-summary__header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px dashed #2a2a2a;
+}
+
+.wpaias-summary__icon {
+	color: #ffd95a;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.wpaias-summary__title {
+	color: #fff;
+	font-size: 15px;
+	font-weight: 600;
+	letter-spacing: .3px;
+}
+
+.wpaias-summary__badge {
+	margin-left: auto;
+	font-size: 11px;
+	color: #888;
+	padding: 2px 8px;
+	border: 1px solid #333;
+	border-radius: 999px;
+	background: #141414;
+}
+
+.wpaias-summary__body {
+	min-height: 1.8em;
+}
+
+.wpaias-summary__text {
+	color: #ccc;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+/* 加载占位 */
+.wpaias-summary__placeholder {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: #888;
+	font-size: 13px;
+}
+
+.wpaias-summary__loading-text { margin-left: 8px; }
+
+.wpaias-dot {
+	display: inline-block;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #888;
+	animation: wpaias-dot 1.2s infinite ease-in-out;
+}
+.wpaias-dot:nth-child(2) { animation-delay: .2s; }
+.wpaias-dot:nth-child(3) { animation-delay: .4s; }
+
+@keyframes wpaias-dot {
+	0%, 80%, 100% { opacity: .2; transform: scale(.8); }
+	40%           { opacity: 1;  transform: scale(1); }
+}
+
+/* 移动端 */
+@media ( max-width: 640px ) {
+	.wpaias-summary {
+		padding: 14px 16px;
+		font-size: 14px;
+		line-height: 1.75;
+		margin: 0 0 20px;
+	}
+	.wpaias-summary__title { font-size: 14px; }
+}
+
+/* ==========================================================================
+   动画效果（10 种）
+   ========================================================================== */
+
+/* 1. 无动画 */
+.wpaias-anim-none .wpaias-summary__text { opacity: 1; }
+
+/* 2/3. 打字机：由 JS 控制；光标效果 */
+.wpaias-anim-typewriter .wpaias-summary__text.wpaias-with-cursor::after {
+	content: '';
+	display: inline-block;
+	width: 2px;
+	height: 1em;
+	background: var( --wpaias-cursor-color, #fff );
+	margin-left: 2px;
+	vertical-align: -2px;
+	animation: wpaias-blink .8s steps(2) infinite;
+}
+.wpaias-anim-typewriter .wpaias-summary__text.wpaias-typed::after { display: none; }
+
+@keyframes wpaias-blink {
+	0%, 100% { opacity: 1; }
+	50%      { opacity: 0; }
+}
+
+/* 4. 全局淡入 */
+.wpaias-anim-fade .wpaias-summary__text {
+	opacity: 0;
+	transition: opacity var( --wpaias-anim-duration, 800ms ) ease;
+}
+.wpaias-anim-fade.wpaias-anim-active .wpaias-summary__text { opacity: 1; }
+
+/* 5. 由下向上 */
+.wpaias-anim-slide-up .wpaias-summary__text {
+	opacity: 0;
+	transform: translateY( 14px );
+	transition: opacity var( --wpaias-anim-duration, 800ms ) ease,
+	            transform var( --wpaias-anim-duration, 800ms ) cubic-bezier(.16, .68, .3, 1);
+}
+.wpaias-anim-slide-up.wpaias-anim-active .wpaias-summary__text {
+	opacity: 1; transform: translateY(0);
+}
+
+/* 6. 由上向下 */
+.wpaias-anim-slide-down .wpaias-summary__text {
+	opacity: 0;
+	transform: translateY( -14px );
+	transition: opacity var( --wpaias-anim-duration, 800ms ) ease,
+	            transform var( --wpaias-anim-duration, 800ms ) cubic-bezier(.16, .68, .3, 1);
+}
+.wpaias-anim-slide-down.wpaias-anim-active .wpaias-summary__text {
+	opacity: 1; transform: translateY(0);
+}
+
+/* 7. 缩放淡入 */
+.wpaias-anim-zoom .wpaias-summary__text {
+	opacity: 0;
+	transform: scale( .96 );
+	transition: opacity var( --wpaias-anim-duration, 800ms ) ease,
+	            transform var( --wpaias-anim-duration, 800ms ) cubic-bezier(.2, .8, .2, 1);
+}
+.wpaias-anim-zoom.wpaias-anim-active .wpaias-summary__text {
+	opacity: 1; transform: scale(1);
+}
+
+/* 8. 弹跳 */
+.wpaias-anim-bounce .wpaias-summary__text {
+	opacity: 0;
+	transform: translateY( 8px ) scale( .98 );
+}
+.wpaias-anim-bounce.wpaias-anim-active .wpaias-summary__text {
+	animation: wpaias-bounce-in var( --wpaias-anim-duration, 800ms ) cubic-bezier(.2, .9, .3, 1.4) forwards;
+}
+@keyframes wpaias-bounce-in {
+	0%   { opacity: 0; transform: translateY(10px) scale(.96); }
+	60%  { opacity: 1; transform: translateY(-4px) scale(1.02); }
+	100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 9. 逐行渐入（JS 拆分 .wpaias-line） */
+.wpaias-anim-line-fade .wpaias-line {
+	display: inline;
+	opacity: 0;
+	transform: translateY( 6px );
+	animation: wpaias-line-fade var( --wpaias-anim-duration, 800ms ) ease forwards;
+}
+@keyframes wpaias-line-fade {
+	to { opacity: 1; transform: translateY(0); }
+}
+
+/* 10. 霓虹微光呼吸 */
+.wpaias-anim-neon {
+	box-shadow: 0 0 0 0 rgba(120, 200, 255, 0);
+	animation: wpaias-neon 3.6s ease-in-out infinite;
+	border-color: #2a3a55;
+}
+@keyframes wpaias-neon {
+	0%, 100% {
+		box-shadow: 0 0 10px rgba(80, 160, 255, .08),
+		            inset 0 0 8px rgba(80, 160, 255, .04);
+		border-color: #2a3a55;
+	}
+	50% {
+		box-shadow: 0 0 22px rgba(120, 200, 255, .25),
+		            inset 0 0 14px rgba(120, 200, 255, .10);
+		border-color: #3a5a8c;
+	}
+}
+.wpaias-anim-neon .wpaias-summary__text {
+	opacity: 0;
+	transition: opacity var( --wpaias-anim-duration, 800ms ) ease;
+}
+.wpaias-anim-neon.wpaias-anim-active .wpaias-summary__text { opacity: 1; }

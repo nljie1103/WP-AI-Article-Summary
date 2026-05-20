@@ -1,0 +1,97 @@
+/* ==========================================================================
+   九流 - AI 摘要插件 · 后台样式
+   ========================================================================== */
+.wpaias-wrap { max-width: 1080px; }
+
+.wpaias-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: 600;
+}
+.wpaias-title .dashicons {
+	color: #2271b1;
+	font-size: 26px;
+	width: 26px;
+	height: 26px;
+}
+.wpaias-title .wpaias-ver {
+	background: #2271b1;
+	color: #fff;
+	font-size: 12px;
+	padding: 2px 8px;
+	border-radius: 10px;
+	margin-left: 6px;
+	font-weight: 500;
+}
+.wpaias-author {
+	color: #888;
+	margin: 4px 0 18px;
+	font-size: 13px;
+}
+.wpaias-author a { color: #2271b1; text-decoration: none; }
+.wpaias-author a:hover { text-decoration: underline; }
+
+.wpaias-tabs { margin-bottom: 18px; }
+
+.wpaias-table th { width: 200px; vertical-align: top; padding-top: 14px; }
+.wpaias-table td { padding-top: 10px; }
+
+/* 开关 */
+.wpaias-switch { position: relative; display: inline-block; width: 44px; height: 22px; vertical-align: middle; }
+.wpaias-switch input { opacity: 0; width: 0; height: 0; }
+.wpaias-slider {
+	position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+	background-color: #ccc; transition: .25s; border-radius: 22px;
+}
+.wpaias-slider:before {
+	position: absolute; content: ""; height: 16px; width: 16px;
+	left: 3px; top: 3px; background-color: #fff; transition: .25s; border-radius: 50%;
+}
+.wpaias-switch input:checked + .wpaias-slider { background-color: #2271b1; }
+.wpaias-switch input:checked + .wpaias-slider:before { transform: translateX(22px); }
+
+/* 测试结果 */
+.wpaias-test-result {
+	display: inline-block; margin-left: 12px; font-size: 13px; padding: 4px 10px;
+	border-radius: 4px; min-width: 80px;
+}
+.wpaias-test-result.ok   { background: #e7f5e7; color: #1f7a1f; }
+.wpaias-test-result.fail { background: #fde8e8; color: #b32424; }
+
+/* 动画选项卡片化 */
+.wpaias-anim-item {
+	display: inline-block; margin: 4px 8px 4px 0; padding: 8px 14px;
+	border: 1px solid #ddd; border-radius: 6px; background: #fff;
+	cursor: pointer; transition: .2s;
+}
+.wpaias-anim-item:hover { border-color: #2271b1; }
+.wpaias-anim-item input { margin-right: 4px; }
+
+/* 分类网格 */
+.wpaias-cats {
+	display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 6px; max-height: 180px; overflow-y: auto;
+	padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa;
+}
+.wpaias-cats label { font-size: 13px; }
+
+/* 列表标记 */
+.wpaias-flag { font-size: 16px; font-weight: bold; }
+.wpaias-flag.yes { color: #46b450; }
+.wpaias-flag.no  { color: #ccc; }
+
+/* meta box */
+.wpaias-mb p { margin: 8px 0; }
+.wpaias-mb .wpaias-mb-status.ok { color: #46b450; font-weight: 600; }
+.wpaias-mb .wpaias-mb-status.no { color: #999; }
+.wpaias-mb-result {
+	margin-top: 6px; padding: 6px 10px; border-radius: 4px; font-size: 12px;
+}
+.wpaias-mb-result.ok   { background: #e7f5e7; color: #1f7a1f; }
+.wpaias-mb-result.fail { background: #fde8e8; color: #b32424; }
+.wpaias-mb-text {
+	margin-top: 4px; padding: 8px; background: #f6f7f7; border-radius: 4px;
+	font-size: 12px; line-height: 1.5; color: #555; max-height: 120px; overflow: auto;
+}
+.wpaias-mb .button-link-delete { color: #b32424; cursor: pointer; }
