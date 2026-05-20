@@ -16,6 +16,7 @@
 		bindCacheActions();
 		bindMetaBoxActions();
 		bindUpdateActions();
+		bindStyleTab();
 		// 初始化模型列表。
 		var $prov = $( '#wpaias-provider' );
 		if ( $prov.length ) {
@@ -26,6 +27,117 @@
 		if ( $( '#wpaias-check-update' ).length ) {
 			doCheckUpdate( false );
 		}
+	}
+
+	/**
+	 * 外观样式 Tab：
+	 *  1. 预设卡片点击 → 自动填充 5 个颜色输入 + 切换 .active；
+	 *  2. 颜色输入框变更（文本 / 取色器） → 实时同步并刷新实时预览；
+	 *  3. 实时预览（#wpaias-live-preview）通过 CSS 变量实时更新。
+	 */
+	function bindStyleTab() {
+		var $grid = $( '.wpaias-style-grid' );
+		if ( ! $grid.length ) return;
+		var $preview = $( '#wpaias-live-preview' );
+
+		// 1. 预设卡片点击
+		$grid.on( 'click', '.wpaias-style-card', function ( e ) {
+			e.preventDefault();
+			var $card = $( this );
+			$grid.find( '.wpaias-style-card' ).removeClass( 'active' );
+			$card.addClass( 'active' );
+			$card.find( 'input[type="radio"]' ).prop( 'checked', true );
+
+			// 把 data-* 写入颜色输入框 + 同步取色器
+			var colors = {
+				bg:     $card.data( 'bg' ),
+				border: $card.data( 'border' ),
+				title:  $card.data( 'title' ),
+				text:   $card.data( 'text' ),
+				accent: $card.data( 'accent' )
+			};
+			$.each( colors, function ( key, val ) {
+				if ( ! val ) return;
+				$( '#wpaias-color-' + key + '-text' ).val( val ).trigger( 'change.preview' );
+				var hex = colorToHex( val );
+				$( '#wpaias-color-' + key + '-pick' ).val( hex );
+			} );
+
+			// 切换预览装饰 class
+			if ( $preview.length ) {
+				// 移除所有 wpaias-style-* class
+				var classes = ( $preview.attr( 'class' ) || '' ).split( /\s+/ ).filter( function ( c ) {
+					return c && c.indexOf( 'wpaias-style-' ) !== 0;
+				} );
+				classes.push( 'wpaias-style-' + ( $card.data( 'key' ) || '' ) );
+				// 同时根据 card 上的 wpaias-style-xxx class 取出装饰 class（如 wpaias-style-glass）
+				var deco = ( $card.attr( 'class' ) || '' ).match( /wpaias-style-(glass|gradient-blue|gradient-pink|gradient-cyan|outline|paper|neon-cyber|notebook|card-shadow)/ );
+				if ( deco ) classes.push( deco[ 0 ] );
+				$preview.attr( 'class', classes.join( ' ' ) );
+				applyPreviewVars();
+			}
+		} );
+
+		// 2. 颜色文本输入变更
+		$( '.wpaias-color-input' ).on( 'input change change.preview', function () {
+			var val = $( this ).val();
+			var id  = $( this ).attr( 'id' ); // wpaias-color-xxx-text
+			var key = id.replace( 'wpaias-color-', '' ).replace( '-text', '' );
+			var hex = colorToHex( val );
+			if ( hex ) {
+				$( '#wpaias-color-' + key + '-pick' ).val( hex );
+			}
+			applyPreviewVars();
+		} );
+
+		// 3. 取色器（input[type="color"]）变更
+		$( '.wpaias-color-pick' ).on( 'input change', function () {
+			var $pick = $( this );
+			var targetId = $pick.data( 'target' );
+			$( '#' + targetId ).val( $pick.val() ).trigger( 'change.preview' );
+		} );
+
+		// 首次进入也刷一次预览
+		applyPreviewVars();
+
+		function applyPreviewVars() {
+			if ( ! $preview.length ) return;
+			var bg     = $( '#wpaias-color-bg-text' ).val() || '#1a1a1a';
+			var border = $( '#wpaias-color-border-text' ).val() || '#333';
+			var title  = $( '#wpaias-color-title-text' ).val() || '#fff';
+			var text   = $( '#wpaias-color-text-text' ).val() || '#ccc';
+			var accent = $( '#wpaias-color-accent-text' ).val() || '#ffd95a';
+			$preview.attr( 'style',
+				'--wpaias-bg:' + bg + ';' +
+				'--wpaias-border:' + border + ';' +
+				'--wpaias-title:' + title + ';' +
+				'--wpaias-text:' + text + ';' +
+				'--wpaias-accent:' + accent + ';'
+			);
+		}
+	}
+
+	/**
+	 * 将任意颜色字符串转换为 #rrggbb（用于设置 <input type="color">）。
+	 */
+	function colorToHex( c ) {
+		if ( ! c ) return '#ffffff';
+		c = ( '' + c ).trim();
+		if ( c.toLowerCase() === 'transparent' ) return '#ffffff';
+		var m;
+		// #rgb
+		m = c.match( /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i );
+		if ( m ) return '#' + m[1] + m[1] + m[2] + m[2] + m[3] + m[3];
+		// #rrggbb / #rrggbbaa
+		m = c.match( /^#([0-9a-f]{6})(?:[0-9a-f]{2})?$/i );
+		if ( m ) return '#' + m[1].toLowerCase();
+		// rgb / rgba
+		m = c.match( /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i );
+		if ( m ) {
+			function pad( n ) { n = parseInt( n, 10 ); if ( n < 0 ) n = 0; if ( n > 255 ) n = 255; var s = n.toString( 16 ); return s.length === 1 ? '0' + s : s; }
+			return '#' + pad( m[1] ) + pad( m[2] ) + pad( m[3] );
+		}
+		return '#ffffff';
 	}
 
 	/**

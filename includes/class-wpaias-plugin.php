@@ -129,6 +129,14 @@ class WPAIAS_Plugin {
 			'cursor_color'       => '#ffffff',
 			'custom_css'         => '',
 
+			// Tab Style — 卡片预设样式 + 5 颜色自定义。
+			'card_style'         => 'dark-minimal',
+			'color_bg'           => '#1a1a1a',
+			'color_border'       => '#333333',
+			'color_title'        => '#ffffff',
+			'color_text'         => '#cccccc',
+			'color_accent'       => '#ffd95a',
+
 			// Tab4.
 			'cache_ttl'          => 'forever',
 		);

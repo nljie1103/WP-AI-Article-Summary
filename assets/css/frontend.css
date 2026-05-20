@@ -6,13 +6,14 @@
         强样式 `*` 通配规则环境下仍能正常生效。
    ========================================================================== */
 
+/* 卡片基础（颜色由 inline style 通过 CSS 变量提供，可被预设 class 覆盖） */
 aside.wpaias-summary,
 .wpaias-summary {
 	box-sizing: border-box !important;
 	display: block !important;
-	background: #1a1a1a !important;
-	color: #ccc !important;
-	border: 1px solid #333 !important;
+	background: var( --wpaias-bg, #1a1a1a ) !important;
+	color: var( --wpaias-text, #cccccc ) !important;
+	border: 1px solid var( --wpaias-border, #333333 ) !important;
 	border-radius: 8px !important;
 	padding: 18px 22px !important;
 	margin: 0 0 26px !important;
@@ -46,7 +47,7 @@ aside.wpaias-summary .wpaias-summary__header,
 
 aside.wpaias-summary .wpaias-summary__icon,
 .wpaias-summary .wpaias-summary__icon {
-	color: #ffd95a !important;
+	color: var( --wpaias-accent, #ffd95a ) !important;
 	display: inline-flex !important;
 	align-items: center;
 	justify-content: center;
@@ -55,7 +56,7 @@ aside.wpaias-summary .wpaias-summary__icon,
 
 aside.wpaias-summary .wpaias-summary__title,
 .wpaias-summary .wpaias-summary__title {
-	color: #fff !important;
+	color: var( --wpaias-title, #ffffff ) !important;
 	font-size: 15px !important;
 	font-weight: 600 !important;
 	letter-spacing: .3px !important;
@@ -66,12 +67,13 @@ aside.wpaias-summary .wpaias-summary__badge,
 .wpaias-summary .wpaias-summary__badge {
 	margin-left: auto !important;
 	font-size: 11px !important;
-	color: #888 !important;
+	color: var( --wpaias-accent, #888 ) !important;
 	padding: 2px 8px !important;
-	border: 1px solid #333 !important;
+	border: 1px solid var( --wpaias-border, #333 ) !important;
 	border-radius: 999px !important;
-	background: #141414 !important;
+	background: transparent !important;
 	line-height: 1.4 !important;
+	opacity: .85;
 }
 
 aside.wpaias-summary .wpaias-summary__body,
@@ -81,7 +83,7 @@ aside.wpaias-summary .wpaias-summary__body,
 
 aside.wpaias-summary .wpaias-summary__text,
 .wpaias-summary .wpaias-summary__text {
-	color: #ccc !important;
+	color: var( --wpaias-text, #cccccc ) !important;
 	white-space: pre-wrap !important;
 	word-break: break-word !important;
 	margin: 0 !important;
@@ -263,4 +265,86 @@ aside.wpaias-summary .wpaias-summary__placeholder,
 .wpaias-summary * {
 	-webkit-text-fill-color: initial;
 	text-decoration: none;
+}
+
+/* ==========================================================================
+   预设样式装饰（在基础卡片之上叠加特殊视觉效果）
+   ========================================================================== */
+
+/* 玻璃磨砂 */
+aside.wpaias-summary.wpaias-style-glass,
+.wpaias-summary.wpaias-style-glass {
+	background: rgba( 255, 255, 255, 0.55 ) !important;
+	backdrop-filter: blur( 16px ) saturate( 180% ) !important;
+	-webkit-backdrop-filter: blur( 16px ) saturate( 180% ) !important;
+	border: 1px solid rgba( 255, 255, 255, 0.6 ) !important;
+	box-shadow: 0 8px 32px rgba( 31, 38, 135, 0.12 ) !important;
+}
+
+/* 蓝紫渐变 */
+aside.wpaias-summary.wpaias-style-gradient-blue,
+.wpaias-summary.wpaias-style-gradient-blue {
+	background: linear-gradient( 135deg, #1e3a8a 0%, #6366f1 50%, #a855f7 100% ) !important;
+	border: 0 !important;
+	box-shadow: 0 12px 30px rgba( 30, 58, 138, 0.35 ) !important;
+}
+
+/* 粉橙渐变 */
+aside.wpaias-summary.wpaias-style-gradient-pink,
+.wpaias-summary.wpaias-style-gradient-pink {
+	background: linear-gradient( 135deg, #fb7185 0%, #f97316 100% ) !important;
+	border: 0 !important;
+	box-shadow: 0 12px 30px rgba( 244, 63, 94, 0.30 ) !important;
+}
+
+/* 青绿渐变 */
+aside.wpaias-summary.wpaias-style-gradient-cyan,
+.wpaias-summary.wpaias-style-gradient-cyan {
+	background: linear-gradient( 135deg, #0891b2 0%, #22d3ee 50%, #34d399 100% ) !important;
+	border: 0 !important;
+	box-shadow: 0 12px 30px rgba( 8, 145, 178, 0.30 ) !important;
+}
+
+/* 细描边 */
+aside.wpaias-summary.wpaias-style-outline,
+.wpaias-summary.wpaias-style-outline {
+	background: transparent !important;
+	border: 2px dashed var( --wpaias-border, #2271b1 ) !important;
+	box-shadow: none !important;
+}
+
+/* 米色纸张（带左侧色带） */
+aside.wpaias-summary.wpaias-style-paper,
+.wpaias-summary.wpaias-style-paper {
+	border-left: 5px solid var( --wpaias-accent, #a3781e ) !important;
+	box-shadow: 0 1px 0 rgba( 0, 0, 0, 0.04 ), inset 0 0 0 1px rgba( 163, 120, 30, 0.05 ) !important;
+}
+
+/* 赛博朋克霓虹 */
+aside.wpaias-summary.wpaias-style-neon-cyber,
+.wpaias-summary.wpaias-style-neon-cyber {
+	border: 1px solid var( --wpaias-border, #00ffff ) !important;
+	box-shadow: 0 0 18px rgba( 0, 255, 255, 0.35 ),
+	            inset 0 0 18px rgba( 255, 0, 255, 0.15 ) !important;
+	text-shadow: 0 0 6px rgba( 0, 255, 255, 0.45 );
+}
+aside.wpaias-summary.wpaias-style-neon-cyber .wpaias-summary__title,
+.wpaias-summary.wpaias-style-neon-cyber .wpaias-summary__title {
+	text-shadow: 0 0 8px rgba( 0, 255, 255, 0.8 ), 0 0 16px rgba( 255, 0, 255, 0.45 ) !important;
+}
+
+/* 笔记本横线 */
+aside.wpaias-summary.wpaias-style-notebook,
+.wpaias-summary.wpaias-style-notebook {
+	background:
+		var( --wpaias-bg, #fffef5 )
+		repeating-linear-gradient( to bottom, transparent 0, transparent 27px, rgba(180, 130, 70, 0.18) 28px, rgba(180, 130, 70, 0.18) 28px ) !important;
+	border-left: 3px double var( --wpaias-accent, #c0392b ) !important;
+}
+
+/* 白卡浮起阴影 */
+aside.wpaias-summary.wpaias-style-card-shadow,
+.wpaias-summary.wpaias-style-card-shadow {
+	border: 0 !important;
+	box-shadow: 0 10px 30px rgba( 0, 0, 0, 0.08 ), 0 2px 6px rgba( 0, 0, 0, 0.04 ) !important;
 }

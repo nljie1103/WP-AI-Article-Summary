@@ -4,7 +4,7 @@ Tags: ai, summary, openai, gemini, deepseek, claude, qwen, kimi, doubao, glm, an
 Requires at least: 5.8
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,13 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 3. 在左侧菜单「首页与加载开屏」中配置 API 与样式
 
 == Changelog ==
+
+= 1.0.5 =
+* 🎨 全新「外观样式」Tab：内置 15 套精心设计的卡片预设（深色极简、玻璃磨砂、蓝紫渐变、粉橙渐变、青绿渐变、细描边、米色纸张、赛博朋克霓虹、笔记本横线、白卡浮起、森系绿、日落橙、薰衣草、午夜蓝 + 完全自定义），点击即应用。
+* 🎨 5 大核心颜色完全自定义（背景 / 边框 / 标题 / 正文 / 强调色），支持 `#rgb` / `#rrggbb` / `rgba(...)` / `transparent`，文本输入框 + 系统取色器双向同步。
+* 🎨 后台实时预览：选择预设 / 调整颜色立即在预览卡片中所见即所得，无需保存即可看到最终效果。
+* 🎨 前端卡片基于 CSS 变量驱动，预设之间无缝切换，5 种装饰效果（玻璃磨砂、霓虹光晕、笔记本横线、纸张色带、渐变背景）均独立可叠加。
+* 🛠 颜色相关字段独立沙盒：仅在"外观样式" Tab 保存时覆盖，其它 Tab 完全互不干扰。
 
 = 1.0.4 =
 * 🛡️ 在线更新增加"设置 0 丢失"双重保护：开始前自动快照设置到 `wpaias_settings_backup`，结束后校验，异常自动恢复。

@@ -125,6 +125,113 @@
 .wpaias-update-status.warn    { background: #fff4e5; border-color: #ffb86b; color: #9a4f00; }
 .wpaias-update-status.fail    { background: #fde8e8; border-color: #f5b1b1; color: #b32424; }
 
+/* ==========================================================================
+   外观样式 Tab - 卡片预设网格 + 颜色选择器 + 实时预览
+   ========================================================================== */
+
+.wpaias-style-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 14px;
+	margin: 14px 0 20px;
+}
+
+.wpaias-style-card {
+	position: relative;
+	display: block;
+	cursor: pointer;
+	padding: 14px 16px;
+	border-radius: 10px;
+	background: var(--wpaias-bg, #1a1a1a);
+	border: 2px solid var(--wpaias-border, #333);
+	color: var(--wpaias-text, #ccc);
+	transition: transform .2s ease, box-shadow .2s ease;
+	overflow: hidden;
+	min-height: 86px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.wpaias-style-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+.wpaias-style-card.active {
+	box-shadow: 0 0 0 3px #2271b1, 0 6px 18px rgba(34, 113, 177, 0.25);
+}
+.wpaias-style-card input[type="radio"] {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+.wpaias-style-card__inner {
+	pointer-events: none;
+}
+.wpaias-style-card__title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--wpaias-title, #fff);
+	font-weight: 600;
+	font-size: 13px;
+	margin-bottom: 6px;
+}
+.wpaias-style-card__icon {
+	color: var(--wpaias-accent, #ffd95a);
+	font-size: 14px;
+}
+.wpaias-style-card__text {
+	font-size: 12px;
+	color: var(--wpaias-text, #ccc);
+	line-height: 1.55;
+	opacity: .9;
+}
+.wpaias-style-card__check {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: #2271b1;
+	color: #fff;
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 22px;
+	text-align: center;
+	transform: scale(0);
+	transition: transform .2s ease;
+	pointer-events: none;
+	z-index: 2;
+}
+.wpaias-style-card.active .wpaias-style-card__check {
+	transform: scale(1);
+}
+
+/* 颜色行布局 */
+.wpaias-color-table .wpaias-color-input {
+	width: 180px;
+	font-family: Menlo, Consolas, monospace;
+	font-size: 13px;
+}
+.wpaias-color-table .wpaias-color-pick {
+	vertical-align: middle;
+	margin-left: 6px;
+	width: 36px;
+	height: 30px;
+	padding: 0;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	cursor: pointer;
+	background: transparent;
+}
+
+/* 实时预览 */
+.wpaias-live-preview-wrap {
+	margin-top: 12px;
+	padding: 24px;
+	background: repeating-linear-gradient(45deg, #f7f7f7, #f7f7f7 10px, #efefef 10px, #efefef 20px);
+	border-radius: 8px;
+}
+
 .wpaias-safety-note {
 	background: #f0f7ff;
 	border: 1px solid #b8daff;

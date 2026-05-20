@@ -171,7 +171,7 @@ class WPAIAS_Admin {
 
 		// 当前提交来源的 Tab，确定哪些字段允许被覆盖。
 		$current_tab = isset( $input['_current_tab'] ) ? sanitize_key( $input['_current_tab'] ) : '';
-		$valid_tabs  = array( 'basic', 'api', 'anim', 'cache' );
+		$valid_tabs  = array( 'basic', 'api', 'anim', 'style', 'cache' );
 		if ( ! in_array( $current_tab, $valid_tabs, true ) ) {
 			$current_tab = ''; // 兼容旧表单：覆盖全部字段。
 		}
@@ -179,6 +179,7 @@ class WPAIAS_Admin {
 		$apply_basic = ( '' === $current_tab || 'basic' === $current_tab );
 		$apply_api   = ( '' === $current_tab || 'api'   === $current_tab );
 		$apply_anim  = ( '' === $current_tab || 'anim'  === $current_tab );
+		$apply_style = ( '' === $current_tab || 'style' === $current_tab );
 		$apply_cache = ( '' === $current_tab || 'cache' === $current_tab );
 
 		// Tab1 — 基础设置。
@@ -285,6 +286,22 @@ class WPAIAS_Admin {
 			}
 		}
 
+		// Tab Style — 卡片外观（预设 + 5 色自定义）。
+		if ( $apply_style ) {
+			$presets = WPAIAS_Styles::presets();
+			if ( isset( $input['card_style'] ) && isset( $presets[ $input['card_style'] ] ) ) {
+				$out['card_style'] = $input['card_style'];
+			}
+			foreach ( array( 'color_bg', 'color_border', 'color_title', 'color_text', 'color_accent' ) as $ck ) {
+				if ( isset( $input[ $ck ] ) ) {
+					$clean = WPAIAS_Styles::sanitize_color( (string) $input[ $ck ] );
+					if ( '' !== $clean ) {
+						$out[ $ck ] = $clean;
+					}
+				}
+			}
+		}
+
 		// Tab4 — 缓存。
 		if ( $apply_cache ) {
 			$valid_ttl = array( 'forever', '1day', '7days', '30days' );
@@ -310,6 +327,7 @@ class WPAIAS_Admin {
 			'basic'    => __( '基础设置', 'wp-ai-article-summary' ),
 			'api'      => __( 'AI接口设置', 'wp-ai-article-summary' ),
 			'anim'     => __( '动画特效', 'wp-ai-article-summary' ),
+			'style'    => __( '外观样式', 'wp-ai-article-summary' ),
 			'cache'    => __( '缓存管理', 'wp-ai-article-summary' ),
 			'update'   => __( '在线更新', 'wp-ai-article-summary' ),
 		);
@@ -616,6 +634,96 @@ class WPAIAS_Admin {
 							</td>
 						</tr>
 					</table>
+
+				<?php elseif ( 'style' === $tab ) : ?>
+					<?php
+					$style_presets = WPAIAS_Styles::presets();
+					$current_style = isset( $settings['card_style'] ) ? $settings['card_style'] : 'dark-minimal';
+					?>
+					<h3 class="wpaias-section-title"><?php esc_html_e( '卡片预设样式（点击任意卡片即应用）', 'wp-ai-article-summary' ); ?></h3>
+					<div class="wpaias-style-grid">
+						<?php foreach ( $style_presets as $key => $preset ) :
+							$active = ( $current_style === $key );
+							$c      = $preset['colors'];
+							?>
+							<label class="wpaias-style-card <?php echo $active ? 'active' : ''; ?> wpaias-style-card--<?php echo esc_attr( $key ); ?> <?php echo esc_attr( $preset['class'] ); ?>"
+								data-key="<?php echo esc_attr( $key ); ?>"
+								data-bg="<?php echo esc_attr( $c['bg'] ); ?>"
+								data-border="<?php echo esc_attr( $c['border'] ); ?>"
+								data-title="<?php echo esc_attr( $c['title'] ); ?>"
+								data-text="<?php echo esc_attr( $c['text'] ); ?>"
+								data-accent="<?php echo esc_attr( $c['accent'] ); ?>"
+								style="--wpaias-bg:<?php echo esc_attr( $c['bg'] ); ?>;--wpaias-border:<?php echo esc_attr( $c['border'] ); ?>;--wpaias-title:<?php echo esc_attr( $c['title'] ); ?>;--wpaias-text:<?php echo esc_attr( $c['text'] ); ?>;--wpaias-accent:<?php echo esc_attr( $c['accent'] ); ?>;">
+								<input type="radio" name="<?php echo esc_attr( $opt ); ?>[card_style]" value="<?php echo esc_attr( $key ); ?>" <?php checked( $active ); ?>>
+								<div class="wpaias-style-card__inner">
+									<div class="wpaias-style-card__title">
+										<span class="wpaias-style-card__icon">★</span>
+										<span><?php echo esc_html( $preset['label'] ); ?></span>
+									</div>
+									<div class="wpaias-style-card__text">这是 AI 摘要预览效果。</div>
+								</div>
+								<div class="wpaias-style-card__check">✓</div>
+							</label>
+						<?php endforeach; ?>
+					</div>
+
+					<h3 class="wpaias-section-title"><?php esc_html_e( '颜色自定义（5 种核心颜色，可任意调色）', 'wp-ai-article-summary' ); ?></h3>
+					<table class="form-table wpaias-table wpaias-color-table">
+						<tr>
+							<th><label><?php esc_html_e( '背景色', 'wp-ai-article-summary' ); ?></label></th>
+							<td>
+								<input type="text" class="wpaias-color-input" id="wpaias-color-bg-text" name="<?php echo esc_attr( $opt ); ?>[color_bg]" value="<?php echo esc_attr( $settings['color_bg'] ); ?>">
+								<input type="color" class="wpaias-color-pick" id="wpaias-color-bg-pick" value="<?php echo esc_attr( $this->to_hex( $settings['color_bg'] ) ); ?>" data-target="wpaias-color-bg-text">
+								<span class="description"><?php esc_html_e( '支持 #rgb / #rrggbb / rgba(...) / transparent', 'wp-ai-article-summary' ); ?></span>
+							</td>
+						</tr>
+						<tr>
+							<th><label><?php esc_html_e( '边框色', 'wp-ai-article-summary' ); ?></label></th>
+							<td>
+								<input type="text" class="wpaias-color-input" id="wpaias-color-border-text" name="<?php echo esc_attr( $opt ); ?>[color_border]" value="<?php echo esc_attr( $settings['color_border'] ); ?>">
+								<input type="color" class="wpaias-color-pick" id="wpaias-color-border-pick" value="<?php echo esc_attr( $this->to_hex( $settings['color_border'] ) ); ?>" data-target="wpaias-color-border-text">
+							</td>
+						</tr>
+						<tr>
+							<th><label><?php esc_html_e( '标题色', 'wp-ai-article-summary' ); ?></label></th>
+							<td>
+								<input type="text" class="wpaias-color-input" id="wpaias-color-title-text" name="<?php echo esc_attr( $opt ); ?>[color_title]" value="<?php echo esc_attr( $settings['color_title'] ); ?>">
+								<input type="color" class="wpaias-color-pick" id="wpaias-color-title-pick" value="<?php echo esc_attr( $this->to_hex( $settings['color_title'] ) ); ?>" data-target="wpaias-color-title-text">
+							</td>
+						</tr>
+						<tr>
+							<th><label><?php esc_html_e( '正文色', 'wp-ai-article-summary' ); ?></label></th>
+							<td>
+								<input type="text" class="wpaias-color-input" id="wpaias-color-text-text" name="<?php echo esc_attr( $opt ); ?>[color_text]" value="<?php echo esc_attr( $settings['color_text'] ); ?>">
+								<input type="color" class="wpaias-color-pick" id="wpaias-color-text-pick" value="<?php echo esc_attr( $this->to_hex( $settings['color_text'] ) ); ?>" data-target="wpaias-color-text-text">
+							</td>
+						</tr>
+						<tr>
+							<th><label><?php esc_html_e( '强调色（图标 / 徽章）', 'wp-ai-article-summary' ); ?></label></th>
+							<td>
+								<input type="text" class="wpaias-color-input" id="wpaias-color-accent-text" name="<?php echo esc_attr( $opt ); ?>[color_accent]" value="<?php echo esc_attr( $settings['color_accent'] ); ?>">
+								<input type="color" class="wpaias-color-pick" id="wpaias-color-accent-pick" value="<?php echo esc_attr( $this->to_hex( $settings['color_accent'] ) ); ?>" data-target="wpaias-color-accent-text">
+							</td>
+						</tr>
+					</table>
+
+					<h3 class="wpaias-section-title"><?php esc_html_e( '实时预览', 'wp-ai-article-summary' ); ?></h3>
+					<div class="wpaias-live-preview-wrap">
+						<aside id="wpaias-live-preview"
+							class="wpaias-summary <?php echo esc_attr( $style_presets[ $current_style ]['class'] ); ?>"
+							style="--wpaias-bg:<?php echo esc_attr( $settings['color_bg'] ); ?>;--wpaias-border:<?php echo esc_attr( $settings['color_border'] ); ?>;--wpaias-title:<?php echo esc_attr( $settings['color_title'] ); ?>;--wpaias-text:<?php echo esc_attr( $settings['color_text'] ); ?>;--wpaias-accent:<?php echo esc_attr( $settings['color_accent'] ); ?>;">
+							<div class="wpaias-summary__header">
+								<span class="wpaias-summary__icon" aria-hidden="true">
+									<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 14.39 8.26 21 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.61-1.01z"/></svg>
+								</span>
+								<span class="wpaias-summary__title"><?php echo esc_html( $settings['title'] ); ?></span>
+								<span class="wpaias-summary__badge"><?php esc_html_e( '由 AI 生成', 'wp-ai-article-summary' ); ?></span>
+							</div>
+							<div class="wpaias-summary__body">
+								<div class="wpaias-summary__text"><?php esc_html_e( '这是 AI 智能摘要的预览文本，用于演示当前所选样式与颜色的最终展示效果。你可以随意切换上方预设或调整下方颜色，预览会实时刷新，所见即所得。', 'wp-ai-article-summary' ); ?></div>
+							</div>
+						</aside>
+					</div>
 
 				<?php elseif ( 'cache' === $tab ) : ?>
 					<table class="form-table wpaias-table">
@@ -954,5 +1062,31 @@ class WPAIAS_Admin {
 	 */
 	public function on_delete_post( $post_id ) {
 		WPAIAS_Cache::delete( $post_id );
+	}
+
+	/**
+	 * 将任意颜色字符串规整成 #rrggbb 用于 <input type="color">。
+	 *
+	 * @param string $c 原值。
+	 * @return string
+	 */
+	protected function to_hex( $c ) {
+		$c = trim( (string) $c );
+		if ( '' === $c || 'transparent' === strtolower( $c ) ) {
+			return '#ffffff';
+		}
+		// #rgb -> #rrggbb.
+		if ( preg_match( '/^#([A-Fa-f0-9]{3})$/', $c, $m ) ) {
+			return '#' . str_repeat( $m[1][0], 2 ) . str_repeat( $m[1][1], 2 ) . str_repeat( $m[1][2], 2 );
+		}
+		// #rrggbb / #rrggbbaa.
+		if ( preg_match( '/^#([A-Fa-f0-9]{6})([A-Fa-f0-9]{2})?$/', $c, $m ) ) {
+			return '#' . $m[1];
+		}
+		// rgb(...) / rgba(...).
+		if ( preg_match( '/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/', $c, $m ) ) {
+			return sprintf( '#%02x%02x%02x', max( 0, min( 255, (int) $m[1] ) ), max( 0, min( 255, (int) $m[2] ) ), max( 0, min( 255, (int) $m[3] ) ) );
+		}
+		return '#ffffff';
 	}
 }

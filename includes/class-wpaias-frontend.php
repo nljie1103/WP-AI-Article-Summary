@@ -252,9 +252,22 @@ class WPAIAS_Frontend {
 			esc_attr( $state )
 		);
 
+		// 卡片预设样式 class + 内联 CSS 变量（颜色自定义）。
+		$style_class = '';
+		$inline_vars = '';
+		if ( class_exists( 'WPAIAS_Styles' ) ) {
+			$style_class = WPAIAS_Styles::get_decoration_class( $settings );
+			$inline_vars = WPAIAS_Styles::build_inline_vars( $settings );
+		}
+		$class_attr = 'wpaias-summary wpaias-anim-' . sanitize_html_class( $anim );
+		if ( $style_class ) {
+			$class_attr .= ' ' . sanitize_html_class( $style_class );
+		}
+		$style_attr = $inline_vars ? ' style="' . esc_attr( $inline_vars ) . '"' : '';
+
 		ob_start();
 		?>
-		<aside class="wpaias-summary wpaias-anim-<?php echo esc_attr( $anim ); ?>" <?php echo $data_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<aside class="<?php echo esc_attr( $class_attr ); ?>"<?php echo $style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> <?php echo $data_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 			<div class="wpaias-summary__header">
 				<span class="wpaias-summary__icon" aria-hidden="true">
 					<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 14.39 8.26 21 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.61-1.01z"/></svg>
