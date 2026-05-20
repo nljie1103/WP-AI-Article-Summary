@@ -1,6 +1,6 @@
 # 九流 - AI 智能文章摘要特效插件 (WP AI Article Summary)
 
-> 作者：[九流](https://www.jiuliu.org) · 版本：1.0.0 · License：GPLv2+
+> 作者：[九流](https://www.jiuliu.org) · 版本：1.0.1 · License：GPLv2+
 
 一款高质量、高性能、可商用的 WordPress 插件。自动在文章顶部（标题下方、正文上方）插入 **AI 智能摘要**，支持 **16 家主流厂商**、**三级联动模型选择**、**10 种文字动画特效**、**完整缓存系统** 与 **暗黑极简卡片风格**。
 
@@ -100,22 +100,29 @@
 
 ## 📦 安装
 
-1. 下载 `wp-ai-article-summary` 目录（或打包 zip）
-2. 上传到 `/wp-content/plugins/`
-3. 后台「插件」中启用
-4. 左侧菜单「首页与加载开屏」中配置 API、动画、缓存
+仓库本身就是插件根目录，直接：
+
+```bash
+git clone https://github.com/nljie1103/WP-AI-Article-Summary.git wp-ai-article-summary
+```
+
+或下载 ZIP，把整个仓库内容放进 `/wp-content/plugins/wp-ai-article-summary/`（目录名可自定义），然后：
+
+1. 后台「插件」中启用
+2. 左侧菜单「首页与加载开屏」中配置 API、动画、缓存
 
 兼容：WordPress **5.8+** · PHP **7.4+** · 现代浏览器全兼容。
 
 ---
 
-## 🗂️ 目录结构
+## 🗂️ 目录结构（仓库根 = 插件根）
 
 ```
-wp-ai-article-summary/
+.
 ├── wp-ai-article-summary.php   # 主入口
 ├── uninstall.php               # 卸载清理
 ├── readme.txt                  # WP.org 风格说明
+├── index.php                   # 防直接访问占位
 ├── includes/
 │   ├── class-wpaias-plugin.php     # 主类 & 单例
 │   ├── class-wpaias-providers.php  # 厂商 + 模型预设
