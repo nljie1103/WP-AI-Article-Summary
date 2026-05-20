@@ -68,8 +68,8 @@ class WPAIAS_Admin {
 	 */
 	public function add_menu() {
 		add_menu_page(
-			__( '首页与加载开屏', 'wp-ai-article-summary' ),
-			__( '首页与加载开屏', 'wp-ai-article-summary' ),
+			__( 'AI智能文章摘要特效插件', 'wp-ai-article-summary' ),
+			__( 'AI智能文章摘要特效插件', 'wp-ai-article-summary' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( $this, 'render_settings_page' ),
@@ -147,73 +147,135 @@ class WPAIAS_Admin {
 	/**
 	 * Sanitize 全部设置。
 	 *
+	 * 设置页采用分 Tab 渲染，单个 Tab 的表单只包含本 Tab 的字段。
+	 * 为避免提交时把其它 Tab 的值清空：
+	 *  - 从已保存的设置出发；
+	 *  - 仅按当前 Tab 范围内的字段做覆盖；
+	 *  - 复选框等"未提交即关闭"的字段也只在当前 Tab 范围内置 0。
+	 *
 	 * @param array $input 原始输入。
 	 * @return array
 	 */
 	public function sanitize_settings( $input ) {
 		$defaults = WPAIAS_Plugin::get_default_settings();
-		$out      = $defaults;
+		$saved    = get_option( WPAIAS_OPTION_KEY, array() );
+		if ( ! is_array( $saved ) ) {
+			$saved = array();
+		}
+		// 以"已保存值 + 默认值"为基线，避免任何字段被意外丢失。
+		$out = wp_parse_args( $saved, $defaults );
 
 		if ( ! is_array( $input ) ) {
 			return $out;
 		}
 
-		// Tab1。
-		$out['enabled']       = ! empty( $input['enabled'] ) ? 1 : 0;
-		$out['mobile_enable'] = ! empty( $input['mobile_enable'] ) ? 1 : 0;
-		$out['title']         = isset( $input['title'] ) ? sanitize_text_field( $input['title'] ) : $defaults['title'];
-		$out['word_limit']    = isset( $input['word_limit'] ) ? max( 30, min( 1000, (int) $input['word_limit'] ) ) : $defaults['word_limit'];
-		$out['position']      = isset( $input['position'] ) && in_array( $input['position'], array( 'before_content', 'after_title', 'after_first_paragraph' ), true ) ? $input['position'] : 'before_content';
-		$out['post_types']    = array();
-		if ( isset( $input['post_types'] ) && is_array( $input['post_types'] ) ) {
-			foreach ( $input['post_types'] as $pt ) {
-				$out['post_types'][] = sanitize_key( $pt );
+		// 当前提交来源的 Tab，确定哪些字段允许被覆盖。
+		$current_tab = isset( $input['_current_tab'] ) ? sanitize_key( $input['_current_tab'] ) : '';
+		$valid_tabs  = array( 'basic', 'api', 'anim', 'cache' );
+		if ( ! in_array( $current_tab, $valid_tabs, true ) ) {
+			$current_tab = ''; // 兼容旧表单：覆盖全部字段。
+		}
+
+		$apply_basic = ( '' === $current_tab || 'basic' === $current_tab );
+		$apply_api   = ( '' === $current_tab || 'api'   === $current_tab );
+		$apply_anim  = ( '' === $current_tab || 'anim'  === $current_tab );
+		$apply_cache = ( '' === $current_tab || 'cache' === $current_tab );
+
+		// Tab1 — 基础设置。
+		if ( $apply_basic ) {
+			$out['enabled']       = ! empty( $input['enabled'] ) ? 1 : 0;
+			$out['mobile_enable'] = ! empty( $input['mobile_enable'] ) ? 1 : 0;
+			if ( isset( $input['title'] ) ) {
+				$out['title'] = sanitize_text_field( $input['title'] );
+			}
+			if ( isset( $input['word_limit'] ) ) {
+				$out['word_limit'] = max( 30, min( 1000, (int) $input['word_limit'] ) );
+			}
+			if ( isset( $input['position'] ) && in_array( $input['position'], array( 'before_content', 'after_title', 'after_first_paragraph' ), true ) ) {
+				$out['position'] = $input['position'];
+			}
+			$out['post_types'] = array();
+			if ( isset( $input['post_types'] ) && is_array( $input['post_types'] ) ) {
+				foreach ( $input['post_types'] as $pt ) {
+					$out['post_types'][] = sanitize_key( $pt );
+				}
+			}
+			if ( empty( $out['post_types'] ) ) {
+				$out['post_types'] = array( 'post' );
+			}
+			$out['exclude_categories'] = array();
+			if ( isset( $input['exclude_categories'] ) && is_array( $input['exclude_categories'] ) ) {
+				foreach ( $input['exclude_categories'] as $cid ) {
+					$out['exclude_categories'][] = (int) $cid;
+				}
+			}
+			if ( isset( $input['exclude_post_ids'] ) ) {
+				$ids = preg_replace( '/[^0-9,\s]/', '', (string) $input['exclude_post_ids'] );
+				$out['exclude_post_ids'] = trim( (string) $ids );
 			}
 		}
-		if ( empty( $out['post_types'] ) ) {
-			$out['post_types'] = array( 'post' );
-		}
 
-		$out['exclude_categories'] = array();
-		if ( isset( $input['exclude_categories'] ) && is_array( $input['exclude_categories'] ) ) {
-			foreach ( $input['exclude_categories'] as $cid ) {
-				$out['exclude_categories'][] = (int) $cid;
+		// Tab2 — AI 接口设置。
+		if ( $apply_api ) {
+			$providers = WPAIAS_Providers::all();
+			if ( isset( $input['provider'] ) && isset( $providers[ $input['provider'] ] ) ) {
+				$out['provider'] = $input['provider'];
+			}
+			if ( isset( $input['model'] ) ) {
+				$out['model'] = sanitize_text_field( $input['model'] );
+			}
+			if ( isset( $input['custom_endpoint'] ) ) {
+				$out['custom_endpoint'] = esc_url_raw( trim( (string) $input['custom_endpoint'] ) );
+			}
+			if ( isset( $input['custom_model'] ) ) {
+				$out['custom_model'] = sanitize_text_field( $input['custom_model'] );
+			}
+			if ( isset( $input['api_key'] ) ) {
+				$out['api_key'] = trim( (string) $input['api_key'] );
+			}
+			if ( isset( $input['temperature'] ) ) {
+				$out['temperature'] = max( 0, min( 2, (float) $input['temperature'] ) );
+			}
+			if ( isset( $input['max_tokens'] ) ) {
+				$out['max_tokens'] = max( 32, min( 8192, (int) $input['max_tokens'] ) );
+			}
+			if ( isset( $input['prompt'] ) ) {
+				$out['prompt'] = wp_kses_post( $input['prompt'] );
 			}
 		}
 
-		$out['exclude_post_ids'] = '';
-		if ( isset( $input['exclude_post_ids'] ) ) {
-			$ids = preg_replace( '/[^0-9,\s]/', '', (string) $input['exclude_post_ids'] );
-			$out['exclude_post_ids'] = trim( (string) $ids );
+		// Tab3 — 动画。
+		if ( $apply_anim ) {
+			$valid_anim = array( 'none', 'typewriter', 'fade', 'slide-up', 'slide-down', 'zoom', 'bounce', 'line-fade', 'neon' );
+			if ( isset( $input['animation'] ) && in_array( $input['animation'], $valid_anim, true ) ) {
+				$out['animation'] = $input['animation'];
+			}
+			if ( isset( $input['anim_duration'] ) ) {
+				$out['anim_duration'] = max( 100, min( 5000, (int) $input['anim_duration'] ) );
+			}
+			if ( isset( $input['type_speed'] ) ) {
+				$out['type_speed'] = max( 5, min( 300, (int) $input['type_speed'] ) );
+			}
+			if ( isset( $input['anim_delay'] ) ) {
+				$out['anim_delay'] = max( 0, min( 5000, (int) $input['anim_delay'] ) );
+			}
+			$out['cursor_enable'] = ! empty( $input['cursor_enable'] ) ? 1 : 0;
+			if ( isset( $input['cursor_color'] ) ) {
+				$c = sanitize_hex_color( $input['cursor_color'] );
+				$out['cursor_color'] = $c ? $c : '#ffffff';
+			}
+			if ( isset( $input['custom_css'] ) ) {
+				$out['custom_css'] = wp_strip_all_tags( (string) $input['custom_css'] );
+			}
 		}
 
-		// Tab2。
-		$providers           = WPAIAS_Providers::all();
-		$out['provider']     = isset( $input['provider'] ) && isset( $providers[ $input['provider'] ] ) ? $input['provider'] : 'openai';
-		$out['model']        = isset( $input['model'] ) ? sanitize_text_field( $input['model'] ) : '';
-		$out['custom_endpoint'] = isset( $input['custom_endpoint'] ) ? esc_url_raw( trim( (string) $input['custom_endpoint'] ) ) : '';
-		$out['custom_model'] = isset( $input['custom_model'] ) ? sanitize_text_field( $input['custom_model'] ) : '';
-		$out['api_key']      = isset( $input['api_key'] ) ? trim( (string) $input['api_key'] ) : '';
-		$out['temperature']  = isset( $input['temperature'] ) ? max( 0, min( 2, (float) $input['temperature'] ) ) : 0.7;
-		$out['max_tokens']   = isset( $input['max_tokens'] ) ? max( 32, min( 8192, (int) $input['max_tokens'] ) ) : 512;
-		$out['prompt']       = isset( $input['prompt'] ) ? wp_kses_post( $input['prompt'] ) : $defaults['prompt'];
-
-		// Tab3。
-		$valid_anim = array( 'none', 'typewriter', 'fade', 'slide-up', 'slide-down', 'zoom', 'bounce', 'line-fade', 'neon' );
-		$out['animation']    = isset( $input['animation'] ) && in_array( $input['animation'], $valid_anim, true ) ? $input['animation'] : 'typewriter';
-		$out['anim_duration']= isset( $input['anim_duration'] ) ? max( 100, min( 5000, (int) $input['anim_duration'] ) ) : 800;
-		$out['type_speed']   = isset( $input['type_speed'] ) ? max( 5, min( 300, (int) $input['type_speed'] ) ) : 35;
-		$out['anim_delay']   = isset( $input['anim_delay'] ) ? max( 0, min( 5000, (int) $input['anim_delay'] ) ) : 0;
-		$out['cursor_enable']= ! empty( $input['cursor_enable'] ) ? 1 : 0;
-		$out['cursor_color'] = isset( $input['cursor_color'] ) ? sanitize_hex_color( $input['cursor_color'] ) : '#ffffff';
-		if ( ! $out['cursor_color'] ) {
-			$out['cursor_color'] = '#ffffff';
+		// Tab4 — 缓存。
+		if ( $apply_cache ) {
+			$valid_ttl = array( 'forever', '1day', '7days', '30days' );
+			if ( isset( $input['cache_ttl'] ) && in_array( $input['cache_ttl'], $valid_ttl, true ) ) {
+				$out['cache_ttl'] = $input['cache_ttl'];
+			}
 		}
-		$out['custom_css']   = isset( $input['custom_css'] ) ? wp_strip_all_tags( (string) $input['custom_css'] ) : '';
-
-		// Tab4。
-		$valid_ttl           = array( 'forever', '1day', '7days', '30days' );
-		$out['cache_ttl']    = isset( $input['cache_ttl'] ) && in_array( $input['cache_ttl'], $valid_ttl, true ) ? $input['cache_ttl'] : 'forever';
 
 		return $out;
 	}
@@ -261,8 +323,7 @@ class WPAIAS_Admin {
 			<form method="post" action="options.php" id="wpaias-form">
 				<?php settings_fields( 'wpaias_settings_group' ); ?>
 				<?php $opt = WPAIAS_OPTION_KEY; ?>
-
-				<?php // 隐藏其它 tab 的字段值，确保提交不丢数据。 ?>
+				<input type="hidden" name="<?php echo esc_attr( $opt ); ?>[_current_tab]" value="<?php echo esc_attr( $tab ); ?>">
 
 				<?php if ( 'basic' === $tab ) : ?>
 					<table class="form-table wpaias-table">
@@ -373,7 +434,8 @@ class WPAIAS_Admin {
 						<tr id="wpaias-custom-endpoint-row" style="display:none;">
 							<th><label><?php esc_html_e( '自定义接口地址', 'wp-ai-article-summary' ); ?></label></th>
 							<td>
-								<input type="text" class="regular-text" id="wpaias-custom-endpoint" name="<?php echo esc_attr( $opt ); ?>[custom_endpoint]" value="<?php echo esc_attr( $settings['custom_endpoint'] ); ?>" placeholder="https://example.com/v1/chat/completions">
+								<input type="text" class="regular-text" id="wpaias-custom-endpoint" name="<?php echo esc_attr( $opt ); ?>[custom_endpoint]" value="<?php echo esc_attr( $settings['custom_endpoint'] ); ?>" placeholder="https://openrouter.ai/api/v1/chat/completions">
+								<p class="description"><?php esc_html_e( '只填 Base URL（如 https://openrouter.ai/api/v1）也可以，系统会自动补全 /chat/completions。', 'wp-ai-article-summary' ); ?></p>
 							</td>
 						</tr>
 						<tr id="wpaias-custom-model-row" style="display:none;">

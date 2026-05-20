@@ -4,7 +4,7 @@ Tags: ai, summary, openai, gemini, deepseek, claude, qwen, kimi, doubao, glm, an
 Requires at least: 5.8
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,10 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 3. 在左侧菜单「首页与加载开屏」中配置 API 与样式
 
 == Changelog ==
+
+= 1.0.1 =
+* 修复：分 Tab 提交时其它 Tab 设置被意外清空的问题（保存 API 设置不会再关闭全局开关等）。
+* 修复：自定义接口仅填写 Base URL 时连通性测试失败 / 返回内容为空的问题（OpenAI 协议下自动追加 /chat/completions，Claude 自动追加 /v1/messages）。
 
 = 1.0.0 =
 * 初版发布。

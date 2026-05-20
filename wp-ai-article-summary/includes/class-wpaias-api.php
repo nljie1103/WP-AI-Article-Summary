@@ -73,6 +73,10 @@ class WPAIAS_API {
 			}
 		}
 
+		// 自动补全 endpoint：OpenAI 兼容协议下用户只填写了 base URL 时，自动追加 /chat/completions。
+		$format = isset( $provider['format'] ) ? $provider['format'] : 'openai';
+		$endpoint = self::normalize_endpoint( $endpoint, $format );
+
 		if ( '' === $api_key ) {
 			return array(
 				'success' => false,
@@ -388,6 +392,51 @@ class WPAIAS_API {
 			$raw = substr( $raw, 0, 200 ) . '...';
 		}
 		return $raw !== '' ? $raw : __( '未知错误', 'wp-ai-article-summary' );
+	}
+
+	/**
+	 * 自动补全 endpoint，使用户填写 base URL 也能正常工作。
+	 *
+	 * @param string $endpoint 用户填写的端点。
+	 * @param string $format   请求体格式：openai / gemini / claude。
+	 * @return string
+	 */
+	protected static function normalize_endpoint( $endpoint, $format ) {
+		$endpoint = trim( (string) $endpoint );
+		if ( '' === $endpoint ) {
+			return $endpoint;
+		}
+
+		// 去除尾部斜杠（保留协议双斜杠）。
+		$endpoint = rtrim( $endpoint, '/' );
+
+		switch ( $format ) {
+			case 'openai':
+				// 如果用户只填写了 base URL（不含 /chat/completions、/completions 等），自动追加。
+				$lower = strtolower( $endpoint );
+				if (
+					false === strpos( $lower, '/chat/completions' ) &&
+					false === strpos( $lower, '/completions' ) &&
+					false === strpos( $lower, '/responses' ) &&
+					false === strpos( $lower, '/messages' )
+				) {
+					$endpoint .= '/chat/completions';
+				}
+				break;
+
+			case 'claude':
+				$lower = strtolower( $endpoint );
+				if ( false === strpos( $lower, '/messages' ) && false === strpos( $lower, '/complete' ) ) {
+					$endpoint .= '/v1/messages';
+				}
+				break;
+
+			case 'gemini':
+				// Gemini 走 {model}:generateContent 占位符，保持原样。
+				break;
+		}
+
+		return $endpoint;
 	}
 
 	/**
