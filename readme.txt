@@ -4,7 +4,7 @@ Tags: ai, summary, openai, gemini, deepseek, claude, qwen, kimi, doubao, glm, an
 Requires at least: 5.8
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,14 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 3. 在左侧菜单「首页与加载开屏」中配置 API 与样式
 
 == Changelog ==
+
+= 1.0.4 =
+* 🛡️ 在线更新增加"设置 0 丢失"双重保护：开始前自动快照设置到 `wpaias_settings_backup`，结束后校验，异常自动恢复。
+* 🛡️ 后台更新页新增「数据保留说明」面板，清晰告知用户：设置 / API Key / 缓存均保留在数据库，更新仅替换代码文件。
+* 💫 动画兼容性大幅强化：所有 10 种动画的 CSS 改用 `aside.wpaias-summary` 高优先级选择器 + `!important`，可对抗 Zibll / Astra Pro / Divi / Elementor / Block 编辑器主题的 `*` 通配强样式覆盖。
+* 💫 动画 keyframes 增加 `animation-fill-mode: both`，避免在某些主题下回到初始态。
+* 💫 修复"逐行渐入"在老版 iOS Safari / 安卓微信内置浏览器报错的问题（移除 regex lookbehind）。
+* 💫 修复部分主题强制 `transition: all !important` 时滑入 / 缩放 / 弹跳动画无效的问题。
 
 = 1.0.3 =
 * 🚀 新增「在线更新」Tab：一键检查 GitHub 最新版本 + 一键下载更新本地文件，无需手动下载 ZIP。

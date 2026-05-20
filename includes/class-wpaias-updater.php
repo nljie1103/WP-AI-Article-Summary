@@ -235,6 +235,19 @@ class WPAIAS_Updater {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 		require_once ABSPATH . 'wp-admin/includes/misc.php';
 
+		// 安全网：开始前先把当前设置 + 缓存索引快照到一个 option。
+		// 由于"更新"只覆盖文件、不动数据库，这一步实际是双重保险。
+		$settings_snapshot = get_option( WPAIAS_OPTION_KEY, array() );
+		update_option(
+			'wpaias_settings_backup',
+			array(
+				'time'     => time(),
+				'version'  => WPAIAS_VERSION,
+				'settings' => $settings_snapshot,
+			),
+			false
+		);
+
 		// 准备文件系统。
 		global $wp_filesystem;
 		if ( ! WP_Filesystem() ) {
@@ -308,9 +321,17 @@ class WPAIAS_Updater {
 			);
 		}
 
+		// 二次防御：如果出于任何不可预知原因 wpaias_settings 被清空，则用快照恢复。
+		$after = get_option( WPAIAS_OPTION_KEY, null );
+		if ( ! is_array( $after ) || empty( $after ) ) {
+			if ( is_array( $settings_snapshot ) && ! empty( $settings_snapshot ) ) {
+				update_option( WPAIAS_OPTION_KEY, $settings_snapshot );
+			}
+		}
+
 		return array(
 			'success'         => true,
-			'message'         => sprintf( /* translators: 1: old, 2: new */ __( '已成功更新：v%1$s → v%2$s', 'wp-ai-article-summary' ), WPAIAS_VERSION, $new_version ?: 'unknown' ),
+			'message'         => sprintf( /* translators: 1: old, 2: new */ __( '已成功更新：v%1$s → v%2$s（你的所有设置与缓存均已保留）', 'wp-ai-article-summary' ), WPAIAS_VERSION, $new_version ?: 'unknown' ),
 			'old_version'     => WPAIAS_VERSION,
 			'new_version'     => $new_version,
 		);

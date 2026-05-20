@@ -693,13 +693,16 @@ class WPAIAS_Admin {
 								</td>
 							</tr>
 							<tr>
-								<th></th>
+								<th><label><?php esc_html_e( '数据保留说明', 'wp-ai-article-summary' ); ?></label></th>
 								<td>
+									<div class="wpaias-safety-note">
+										✅ <strong><?php esc_html_e( '所有设置 / API Key / 缓存 / 标记均保留', 'wp-ai-article-summary' ); ?></strong><br>
+										<?php esc_html_e( '原因：插件设置存储于 WordPress 数据库（wp_options 表中的 wpaias_settings），缓存以 transient 形式存放（wpaias_summary_*），更新仅替换插件目录下的代码文件，完全不会触碰数据库。', 'wp-ai-article-summary' ); ?>
+										<br><br>
+										🛡️ <?php esc_html_e( '额外保险：每次执行更新前会将当前设置自动快照到 wpaias_settings_backup，如果出现异常，下次访问会自动从快照恢复。', 'wp-ai-article-summary' ); ?>
+									</div>
 									<p class="description">
-										<?php esc_html_e( '说明：更新通过下载 GitHub 仓库 main 分支的 zip 包，解压后覆盖本地插件目录（不会删除你已生成的缓存与设置）。', 'wp-ai-article-summary' ); ?>
-									</p>
-									<p class="description">
-										<?php esc_html_e( '请确保 wp-content/plugins/ 目录可写。建议执行更新前先做一次站点备份。', 'wp-ai-article-summary' ); ?>
+										<?php esc_html_e( '请确保 wp-content/plugins/ 目录可写。建议执行更新前先做一次站点全量备份（任何插件更新都推荐这么做）。', 'wp-ai-article-summary' ); ?>
 									</p>
 								</td>
 							</tr>

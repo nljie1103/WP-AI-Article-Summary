@@ -317,23 +317,28 @@
 	}
 
 	/**
-	 * 逐行渐入。
+	 * 逐行渐入（兼容老 iOS Safari，不使用正则 lookbehind）。
 	 */
 	function runLineFade( box, text ) {
 		var raw = text.textContent || '';
-		var lines = raw.split( /[\n。！？!?]/ ).filter( function ( s ) { return s.trim().length > 0; } );
+		// 第一轮：按中英文句末标点 + 换行切分。
+		var lines = raw.split( /[\n。！？!?]+/ ).map( function ( s ) { return s.trim(); } ).filter( function ( s ) { return s.length > 0; } );
 
+		// 第二轮兜底：如果只有 1 段，则按"在 ，,；; 之后"插入分隔符再切。
 		if ( lines.length <= 1 ) {
-			lines = raw.split( /(?<=[，,；;])/ ).filter( function ( s ) { return s.trim().length > 0; } );
+			var s2 = raw.replace( /([，,；;])/g, '$1\u0001' );
+			lines = s2.split( '\u0001' ).map( function ( s ) { return s.trim(); } ).filter( function ( s ) { return s.length > 0; } );
 		}
 		if ( lines.length === 0 ) lines = [ raw ];
 
-		text.innerHTML = '';
+		// 直接重建为多个 <span class="wpaias-line">。
+		while ( text.firstChild ) text.removeChild( text.firstChild );
 		lines.forEach( function ( line, idx ) {
 			var span = document.createElement( 'span' );
 			span.className = 'wpaias-line';
 			span.style.animationDelay = ( idx * 0.12 ) + 's';
-			span.textContent = line;
+			// 在视觉上保留句末标点 / 空格。
+			span.textContent = line + ' ';
 			text.appendChild( span );
 		} );
 	}
