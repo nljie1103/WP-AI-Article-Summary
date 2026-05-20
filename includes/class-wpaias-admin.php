@@ -311,6 +311,7 @@ class WPAIAS_Admin {
 			'api'      => __( 'AI接口设置', 'wp-ai-article-summary' ),
 			'anim'     => __( '动画特效', 'wp-ai-article-summary' ),
 			'cache'    => __( '缓存管理', 'wp-ai-article-summary' ),
+			'update'   => __( '在线更新', 'wp-ai-article-summary' ),
 		);
 
 		$cache_count = WPAIAS_Cache::count();
@@ -655,9 +656,60 @@ class WPAIAS_Admin {
 							</td>
 						</tr>
 					</table>
+
+				<?php elseif ( 'update' === $tab ) : ?>
+					<div class="wpaias-update-box">
+						<table class="form-table wpaias-table">
+							<tr>
+								<th><label><?php esc_html_e( '当前版本', 'wp-ai-article-summary' ); ?></label></th>
+								<td>
+									<strong style="font-size:16px;">v<?php echo esc_html( WPAIAS_VERSION ); ?></strong>
+								</td>
+							</tr>
+							<tr>
+								<th><label><?php esc_html_e( '远程仓库', 'wp-ai-article-summary' ); ?></label></th>
+								<td>
+									<a href="https://github.com/nljie1103/WP-AI-Article-Summary" target="_blank" rel="noopener">github.com/nljie1103/WP-AI-Article-Summary</a>
+								</td>
+							</tr>
+							<tr>
+								<th><label><?php esc_html_e( '检查更新', 'wp-ai-article-summary' ); ?></label></th>
+								<td>
+									<button type="button" class="button button-secondary" id="wpaias-check-update">
+										<span class="dashicons dashicons-update"></span>
+										<?php esc_html_e( '立即检查更新', 'wp-ai-article-summary' ); ?>
+									</button>
+									<button type="button" class="button" id="wpaias-do-update" disabled style="margin-left:8px;">
+										<span class="dashicons dashicons-download"></span>
+										<?php esc_html_e( '一键在线更新', 'wp-ai-article-summary' ); ?>
+									</button>
+									<div id="wpaias-update-status" class="wpaias-update-status"><?php esc_html_e( '点击 "立即检查更新" 来对比本地与远程版本。', 'wp-ai-article-summary' ); ?></div>
+								</td>
+							</tr>
+							<tr>
+								<th><label><?php esc_html_e( '变更日志（最新）', 'wp-ai-article-summary' ); ?></label></th>
+								<td>
+									<pre id="wpaias-changelog" class="wpaias-changelog"><?php esc_html_e( '（暂未获取，请先点击 "立即检查更新"）', 'wp-ai-article-summary' ); ?></pre>
+								</td>
+							</tr>
+							<tr>
+								<th></th>
+								<td>
+									<p class="description">
+										<?php esc_html_e( '说明：更新通过下载 GitHub 仓库 main 分支的 zip 包，解压后覆盖本地插件目录（不会删除你已生成的缓存与设置）。', 'wp-ai-article-summary' ); ?>
+									</p>
+									<p class="description">
+										<?php esc_html_e( '请确保 wp-content/plugins/ 目录可写。建议执行更新前先做一次站点备份。', 'wp-ai-article-summary' ); ?>
+									</p>
+								</td>
+							</tr>
+						</table>
+					</div>
 				<?php endif; ?>
 
-				<?php submit_button( __( '保存设置', 'wp-ai-article-summary' ) ); ?>
+				<?php if ( 'update' !== $tab ) : ?>
+					<?php submit_button( __( '保存设置', 'wp-ai-article-summary' ) ); ?>
+				<?php endif; ?>
 			</form>
 		</div>
 		<?php

@@ -4,7 +4,7 @@ Tags: ai, summary, openai, gemini, deepseek, claude, qwen, kimi, doubao, glm, an
 Requires at least: 5.8
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,12 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 3. 在左侧菜单「首页与加载开屏」中配置 API 与样式
 
 == Changelog ==
+
+= 1.0.3 =
+* 🚀 新增「在线更新」Tab：一键检查 GitHub 最新版本 + 一键下载更新本地文件，无需手动下载 ZIP。
+* 🚀 自动从 raw.githubusercontent.com 读取远程版本号进行对比，命中已是最新则禁用更新按钮。
+* 🚀 自动拉取远程 readme.txt 的 Changelog 段落显示在后台预览。
+* 🛡️ 使用 WP_Filesystem + download_url + unzip_file 安全下载与覆盖，跳过 .git/.github 等隐藏目录。
 
 = 1.0.2 =
 * 🎯 主题兼容性大幅增强：新增「注入模式」设置（自动 / 仅 the_content / 仅 JS 注入 / 仅短代码 / 完全手动）。

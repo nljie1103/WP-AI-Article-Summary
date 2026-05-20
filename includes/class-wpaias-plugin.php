@@ -36,6 +36,13 @@ class WPAIAS_Plugin {
 	public $frontend;
 
 	/**
+	 * 更新器实例。
+	 *
+	 * @var WPAIAS_Updater
+	 */
+	public $updater;
+
+	/**
 	 * 获取单例。
 	 *
 	 * @return WPAIAS_Plugin
@@ -57,6 +64,10 @@ class WPAIAS_Plugin {
 		if ( is_admin() ) {
 			$this->admin = new WPAIAS_Admin();
 			$this->admin->register();
+
+			// 在线更新器（仅后台需要）。
+			$this->updater = new WPAIAS_Updater();
+			$this->updater->register();
 		}
 
 		$this->frontend = new WPAIAS_Frontend();
