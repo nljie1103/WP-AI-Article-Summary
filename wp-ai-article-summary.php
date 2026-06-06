@@ -3,7 +3,7 @@
  * Plugin Name: 九流-AI智能文章摘要特效插件
  * Plugin URI: https://www.jiuliu.org
  * Description: 自动在文章顶部插入 AI 智能摘要，支持多厂商 API 一键选择、三级联动模型选择、丰富的文字入场动画特效、独立缓存系统、暗黑极简卡片样式，专为现代博客打造。
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: 九流
  * Author URI: https://www.jiuliu.org
  * License: GPLv2 or later
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // 定义常量。
-define( 'WPAIAS_VERSION', '1.0.5' );
+define( 'WPAIAS_VERSION', '1.0.6' );
 define( 'WPAIAS_PLUGIN_FILE', __FILE__ );
 define( 'WPAIAS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAIAS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

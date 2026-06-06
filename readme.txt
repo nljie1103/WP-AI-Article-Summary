@@ -4,7 +4,7 @@ Tags: ai, summary, openai, gemini, deepseek, claude, qwen, kimi, doubao, glm, an
 Requires at least: 5.8
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,12 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 3. 在左侧菜单「首页与加载开屏」中配置 API 与样式
 
 == Changelog ==
+
+= 1.0.6 =
+* 更新多家 AI 服务商的默认接口地址与模型预设，移除明显过期的旧模型。
+* 修正 DeepSeek 与 Kimi 默认接口地址。
+* 适配 OpenAI / Kimi 新模型的 `max_completion_tokens` 参数。
+* 同步更新 README 中的模型示例与版本信息。
 
 = 1.0.5 =
 * 🎨 全新「外观样式」Tab：内置 15 套精心设计的卡片预设（深色极简、玻璃磨砂、蓝紫渐变、粉橙渐变、青绿渐变、细描边、米色纸张、赛博朋克霓虹、笔记本横线、白卡浮起、森系绿、日落橙、薰衣草、午夜蓝 + 完全自定义），点击即应用。

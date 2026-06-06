@@ -534,7 +534,7 @@ class WPAIAS_Admin {
 						<tr id="wpaias-custom-model-row" style="display:none;">
 							<th><label><?php esc_html_e( '自定义模型名', 'wp-ai-article-summary' ); ?></label></th>
 							<td>
-								<input type="text" class="regular-text" id="wpaias-custom-model" name="<?php echo esc_attr( $opt ); ?>[custom_model]" value="<?php echo esc_attr( $settings['custom_model'] ); ?>" placeholder="gpt-3.5-turbo">
+								<input type="text" class="regular-text" id="wpaias-custom-model" name="<?php echo esc_attr( $opt ); ?>[custom_model]" value="<?php echo esc_attr( $settings['custom_model'] ); ?>" placeholder="gpt-5.4-nano">
 							</td>
 						</tr>
 						<tr>

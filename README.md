@@ -1,6 +1,6 @@
 # 九流 - AI 智能文章摘要特效插件 (WP AI Article Summary)
 
-> 作者：[九流](https://www.jiuliu.org) · 版本：1.0.1 · License：GPLv2+
+> 作者：[九流](https://www.jiuliu.org) · 版本：1.0.6 · License：GPLv2+
 
 一款高质量、高性能、可商用的 WordPress 插件。自动在文章顶部（标题下方、正文上方）插入 **AI 智能摘要**，支持 **16 家主流厂商**、**三级联动模型选择**、**10 种文字动画特效**、**完整缓存系统** 与 **暗黑极简卡片风格**。
 
@@ -14,21 +14,21 @@
 
 | 服务商 | 内置模型示例 |
 | --- | --- |
-| OpenAI | gpt-4o / gpt-4o-mini / gpt-4 / gpt-3.5-turbo |
-| Gemini (Google) | gemini-1.5-pro / gemini-1.5-flash / gemini-ultra |
-| DeepSeek | deepseek-chat / deepseek-reasoner / deepseek-coder |
-| 火山方舟 (字节) | doubao-pro-32k / doubao-lite-32k |
-| Kimi (月之暗面) | kimi-latest / moonshot-v1-8k / 32k / 128k |
-| OpenRouter | gpt-4o / claude-3.5-sonnet / gemini-pro-1.5 ... |
-| Claude (Anthropic) | claude-3.5-sonnet / 3-opus / 3-haiku |
-| 通义千问 (阿里) | qwen-max / qwen-plus / qwen-turbo / qwen2.5-72b |
+| OpenAI | gpt-5.4-nano / gpt-5.4-mini / gpt-5.5 / chat-latest |
+| Gemini (Google) | gemini-3-flash-preview / gemini-3-pro-preview / gemini-2.5-flash |
+| DeepSeek | deepseek-v4-flash / deepseek-v4-pro / deepseek-chat / deepseek-reasoner |
+| 火山方舟 (字节) | doubao-seed-2-0-lite-260215 / doubao-seed-2-0-pro-260215 |
+| Kimi (月之暗面) | kimi-k2.6 / kimi-k2.5 / kimi-k2-thinking / moonshot-v1 |
+| OpenRouter | gpt-5.5 / claude-opus-4.8 / gemini-3-flash-preview ... |
+| Claude (Anthropic) | claude-opus-4-8 / claude-sonnet-4-6 / claude-haiku-4-5 |
+| 通义千问 (阿里) | qwen3.7-max / qwen3.6-plus / qwen3.5-flash |
 | 讯飞星火 | spark-lite / spark-pro / spark-max / 4.0Ultra |
-| 智谱 GLM | glm-4-plus / glm-4 / glm-4-flash / glm-3-turbo |
-| 360 智脑 | 360gpt-pro / 360gpt-turbo |
-| 百度文心一言 | ernie-4.0-8k / ernie-3.5-8k / ernie-speed-128k |
-| 豆包 (字节) | doubao-1.5-pro-32k / doubao-1.5-lite-32k |
-| Mistral | mistral-large-latest / open-mixtral-8x22b |
-| Grok (xAI) | grok-2-latest / grok-2 / grok-beta |
+| 智谱 GLM | glm-5.1 / glm-5 / glm-5-flash / glm-4.5 |
+| 360 智脑 | 360gpt2-pro / 360gpt-pro / deepseek-v3-360gpt-pro |
+| 百度文心一言 | ernie-4.5-turbo-128k / ernie-x1-turbo-32k / ernie-speed-128k |
+| 豆包 (字节) | doubao-seed-2-0-lite-260215 / doubao-seed-2-0-pro-260215 |
+| Mistral | mistral-medium-3.5 / mistral-small-latest / mistral-large-latest |
+| Grok (xAI) | grok-4.3 / grok-4.20 / grok-3 |
 | 自定义接口 | 任意 OpenAI 兼容端点 |
 
 选择「自定义接口」时自动出现 **接口地址** + **模型名** 双输入框；最终统一在 API Key 输入栏填写凭证。
@@ -142,4 +142,4 @@ git clone https://github.com/nljie1103/WP-AI-Article-Summary.git wp-ai-article-s
 
 ## 📄 License
 
-GPLv2 or later — © 2024-2026 [九流](https://www.jiuliu.org)
+GPLv2 or later — © 2024-2026 [九流](https://www.jiuliu.org)。详见 [LICENSE](LICENSE)。

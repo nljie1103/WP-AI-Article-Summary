@@ -117,7 +117,7 @@ class WPAIAS_API {
 
 				case 'openai':
 				default:
-					return self::request_openai( $endpoint, $api_key, $model, $prompt, $temperature, $max_tokens );
+					return self::request_openai( $endpoint, $api_key, $model, $prompt, $temperature, $max_tokens, $provider_key );
 			}
 		} catch ( Exception $e ) {
 			return array(
@@ -137,9 +137,10 @@ class WPAIAS_API {
 	 * @param string $prompt      提示词。
 	 * @param float  $temperature 温度。
 	 * @param int    $max_tokens  最大 tokens。
+	 * @param string $provider_key 服务商 key。
 	 * @return array
 	 */
-	protected static function request_openai( $endpoint, $api_key, $model, $prompt, $temperature, $max_tokens ) {
+	protected static function request_openai( $endpoint, $api_key, $model, $prompt, $temperature, $max_tokens, $provider_key = '' ) {
 		$body = array(
 			'model'       => $model,
 			'messages'    => array(
@@ -149,9 +150,11 @@ class WPAIAS_API {
 				),
 			),
 			'temperature' => max( 0, min( 2, (float) $temperature ) ),
-			'max_tokens'  => max( 16, (int) $max_tokens ),
 			'stream'      => false,
 		);
+
+		$token_key          = self::openai_token_limit_key( $provider_key, $model );
+		$body[ $token_key ] = max( 16, (int) $max_tokens );
 
 		$response = wp_remote_post(
 			esc_url_raw( $endpoint ),
@@ -210,6 +213,37 @@ class WPAIAS_API {
 			'data'    => $text,
 			'message' => 'ok',
 		);
+	}
+
+	/**
+	 * 获取 OpenAI 兼容接口的 token 上限字段名。
+	 *
+	 * 部分新版模型/厂商已偏向使用 max_completion_tokens，但大量 OpenAI
+	 * 兼容厂商仍使用 max_tokens；这里仅对明确需要新版字段的模型做切换。
+	 *
+	 * @param string $provider_key 服务商 key。
+	 * @param string $model        模型名。
+	 * @return string
+	 */
+	protected static function openai_token_limit_key( $provider_key, $model ) {
+		$model = strtolower( (string) $model );
+
+		if ( 'kimi' === $provider_key ) {
+			return 'max_completion_tokens';
+		}
+
+		if ( 'openai' === $provider_key ) {
+			if (
+				0 === strpos( $model, 'gpt-5' ) ||
+				0 === strpos( $model, 'o1' ) ||
+				0 === strpos( $model, 'o3' ) ||
+				0 === strpos( $model, 'o4' )
+			) {
+				return 'max_completion_tokens';
+			}
+		}
+
+		return 'max_tokens';
 	}
 
 	/**

@@ -112,7 +112,7 @@ class WPAIAS_Plugin {
 
 			// Tab2.
 			'provider'           => 'openai',
-			'model'              => 'gpt-4o-mini',
+			'model'              => 'gpt-5.4-nano',
 			'custom_endpoint'    => '',
 			'custom_model'       => '',
 			'api_key'            => '',
