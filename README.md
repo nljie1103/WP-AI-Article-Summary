@@ -1,6 +1,6 @@
 # 九流 - AI 智能文章摘要特效插件 (WP AI Article Summary)
 
-> 作者：[九流](https://www.jiuliu.org) · 版本：1.0.7 · License：GPLv2+
+> 作者：[九流](https://www.jiuliu.org) · 版本：1.0.8 · License：GPLv2+
 
 一款高质量、高性能、可商用的 WordPress 插件。自动在文章顶部（标题下方、正文上方）插入 **AI 智能摘要**，支持 **16 家主流厂商**、**三级联动模型选择**、**10 种文字动画特效**、**完整缓存系统** 与 **暗黑极简卡片风格**。
 

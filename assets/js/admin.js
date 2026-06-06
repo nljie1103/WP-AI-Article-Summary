@@ -315,7 +315,7 @@
 				nonce: WPAIAS.nonce,
 				provider: currentProvider(),
 				model: currentModel(),
-				api_key: $( '#wpaias-api-key' ).val(),
+				current_api_key: $( '#wpaias-api-key' ).val(),
 				endpoint: $( '#wpaias-custom-endpoint' ).val(),
 				custom_model: $( '#wpaias-custom-model' ).val()
 			};

@@ -19,8 +19,8 @@ class WPAIAS_API {
 	 * 调用 AI 生成摘要。
 	 *
 	 * @param string $content    需要生成摘要的纯文本内容。
-	 * @param array  $settings   插件设置数组（包含 provider/model/api_key 等）。
-	 * @param array  $overrides  覆盖参数（可选）：endpoint/model/api_key 等。
+	 * @param array  $settings   插件设置数组（包含 provider/model/api_keys 等）。
+	 * @param array  $overrides  覆盖参数（可选）：endpoint/model/current_api_key 等。
 	 * @return array { 'success' => bool, 'data' => string|null, 'message' => string }
 	 */
 	public static function generate_summary( $content, $settings, $overrides = array() ) {
@@ -47,7 +47,7 @@ class WPAIAS_API {
 		}
 
 		$model      = isset( $overrides['model'] ) ? $overrides['model'] : ( isset( $settings['model'] ) ? $settings['model'] : '' );
-		$api_key    = array_key_exists( 'api_key', $overrides ) ? $overrides['api_key'] : null;
+		$api_key    = array_key_exists( 'current_api_key', $overrides ) ? $overrides['current_api_key'] : null;
 		$endpoint   = isset( $overrides['endpoint'] ) ? $overrides['endpoint'] : ( isset( $settings['custom_endpoint'] ) ? $settings['custom_endpoint'] : '' );
 		$temperature = isset( $overrides['temperature'] ) ? (float) $overrides['temperature'] : (float) ( isset( $settings['temperature'] ) ? $settings['temperature'] : 0.7 );
 		$max_tokens  = isset( $overrides['max_tokens'] ) ? (int) $overrides['max_tokens'] : (int) ( isset( $settings['max_tokens'] ) ? $settings['max_tokens'] : 512 );

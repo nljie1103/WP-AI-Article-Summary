@@ -4,7 +4,7 @@ Tags: ai, summary, openai, gemini, deepseek, claude, qwen, kimi, doubao, glm, an
 Requires at least: 5.8
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,10 +27,14 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Changelog ==
 
+= 1.0.8 =
+* 清理旧版全局 `api_key` 设置项：默认配置、保存逻辑、表单字段与兼容兜底均已移除，读取 / 保存时会剔除旧字段。
+* API Key 仅保存在 `api_keys` 映射中，按「服务商 + 模型」绑定，避免新旧结构并存造成歧义。
+* 连通性测试改用临时 `current_api_key` 参数，不再把当前输入框当作全局设置字段提交。
+
 = 1.0.7 =
 * 修复：不同服务商 / 模型共用同一个 API Key，导致切换模型时必须反复改 Key 的问题。
 * 新增：API Key 按「服务商 + 模型」独立保存，切换模型会自动加载对应 Key。
-* 兼容：旧版本已保存的单个 API Key 会自动迁移到当前选中的服务商 / 模型，不会升级后丢失。
 
 = 1.0.6 =
 * 更新多家 AI 服务商的默认接口地址与模型预设，移除明显过期的旧模型。

@@ -86,15 +86,8 @@ class WPAIAS_Plugin {
 			$saved = array();
 		}
 		$settings = wp_parse_args( $saved, $defaults );
+		unset( $settings['api_key'] );
 		$settings['api_keys'] = self::sanitize_api_keys( isset( $settings['api_keys'] ) ? $settings['api_keys'] : array() );
-
-		if ( empty( $settings['api_keys'] ) && ! empty( $settings['api_key'] ) ) {
-			$legacy_model = ( 'custom' === $settings['provider'] && ! empty( $settings['custom_model'] ) ) ? $settings['custom_model'] : $settings['model'];
-			$legacy_slot  = self::api_key_slot( $settings['provider'], $legacy_model );
-			if ( '' !== $legacy_slot ) {
-				$settings['api_keys'][ $legacy_slot ] = trim( (string) $settings['api_key'] );
-			}
-		}
 
 		return $settings;
 	}
@@ -175,10 +168,6 @@ class WPAIAS_Plugin {
 			return $api_keys[ $slot ];
 		}
 
-		if ( empty( $api_keys ) && ! empty( $settings['api_key'] ) ) {
-			return str_replace( array( "\r", "\n" ), '', trim( (string) $settings['api_key'] ) );
-		}
-
 		return '';
 	}
 
@@ -209,7 +198,6 @@ class WPAIAS_Plugin {
 			'model'              => 'gpt-5.4-nano',
 			'custom_endpoint'    => '',
 			'custom_model'       => '',
-			'api_key'            => '',
 			'api_keys'           => array(),
 			'temperature'        => 0.7,
 			'max_tokens'         => 512,

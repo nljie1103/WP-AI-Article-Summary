@@ -165,6 +165,7 @@ class WPAIAS_Admin {
 		}
 		// 以"已保存值 + 默认值"为基线，避免任何字段被意外丢失。
 		$out = wp_parse_args( $saved, $defaults );
+		unset( $out['api_key'] );
 
 		if ( ! is_array( $input ) ) {
 			return $out;
@@ -259,18 +260,6 @@ class WPAIAS_Admin {
 				$api_keys = array_merge( $api_keys, $input['api_keys'] );
 			}
 			$out['api_keys'] = WPAIAS_Plugin::sanitize_api_keys( $api_keys );
-			if ( isset( $input['api_key'] ) ) {
-				$out['api_key'] = trim( (string) $input['api_key'] );
-				$slot_model     = ( 'custom' === $out['provider'] && ! empty( $out['custom_model'] ) ) ? $out['custom_model'] : $out['model'];
-				$slot           = WPAIAS_Plugin::api_key_slot( $out['provider'], $slot_model );
-				if ( '' !== $slot ) {
-					if ( '' === $out['api_key'] ) {
-						unset( $out['api_keys'][ $slot ] );
-					} else {
-						$out['api_keys'][ $slot ] = str_replace( array( "\r", "\n" ), '', $out['api_key'] );
-					}
-				}
-			}
 			if ( isset( $input['temperature'] ) ) {
 				$out['temperature'] = max( 0, min( 2, (float) $input['temperature'] ) );
 			}
@@ -565,7 +554,7 @@ class WPAIAS_Admin {
 							<th><label><?php esc_html_e( 'API Key', 'wp-ai-article-summary' ); ?></label></th>
 							<td>
 								<input type="hidden" id="wpaias-api-keys-json" name="<?php echo esc_attr( $opt ); ?>[api_keys_json]" value="<?php echo esc_attr( $api_keys_json ); ?>">
-								<input type="password" class="regular-text" id="wpaias-api-key" name="<?php echo esc_attr( $opt ); ?>[api_key]" value="<?php echo esc_attr( $current_key ); ?>" autocomplete="off">
+								<input type="password" class="regular-text" id="wpaias-api-key" value="<?php echo esc_attr( $current_key ); ?>" autocomplete="off">
 								<button type="button" class="button" id="wpaias-toggle-key"><?php esc_html_e( '显示/隐藏', 'wp-ai-article-summary' ); ?></button>
 								<p class="description">
 									<?php esc_html_e( '当前输入框只绑定当前服务商 + 模型；切换模型会自动切换到对应的 API Key。', 'wp-ai-article-summary' ); ?>
@@ -874,13 +863,13 @@ class WPAIAS_Admin {
 		}
 
 		$overrides = array(
-			'provider'    => $test_provider,
-			'model'       => $test_model,
-			'api_key'     => isset( $_POST['api_key'] ) ? trim( (string) wp_unslash( $_POST['api_key'] ) ) : WPAIAS_Plugin::get_api_key_for_model( $settings, $test_provider, $test_model ),
-			'endpoint'    => isset( $_POST['endpoint'] ) ? esc_url_raw( wp_unslash( $_POST['endpoint'] ) ) : $settings['custom_endpoint'],
-			'temperature' => isset( $_POST['temperature'] ) ? (float) wp_unslash( $_POST['temperature'] ) : $settings['temperature'],
-			'max_tokens'  => 32,
-			'prompt'      => '请回复"ok"两个字符，用于连通性测试。',
+			'provider'        => $test_provider,
+			'model'           => $test_model,
+			'current_api_key' => isset( $_POST['current_api_key'] ) ? trim( (string) wp_unslash( $_POST['current_api_key'] ) ) : WPAIAS_Plugin::get_api_key_for_model( $settings, $test_provider, $test_model ),
+			'endpoint'        => isset( $_POST['endpoint'] ) ? esc_url_raw( wp_unslash( $_POST['endpoint'] ) ) : $settings['custom_endpoint'],
+			'temperature'     => isset( $_POST['temperature'] ) ? (float) wp_unslash( $_POST['temperature'] ) : $settings['temperature'],
+			'max_tokens'      => 32,
+			'prompt'          => '请回复"ok"两个字符，用于连通性测试。',
 		);
 
 		$result = WPAIAS_API::generate_summary( '这是一段用于连通性测试的内容。', $settings, $overrides );
