@@ -85,7 +85,101 @@ class WPAIAS_Plugin {
 		if ( ! is_array( $saved ) ) {
 			$saved = array();
 		}
-		return wp_parse_args( $saved, $defaults );
+		$settings = wp_parse_args( $saved, $defaults );
+		$settings['api_keys'] = self::sanitize_api_keys( isset( $settings['api_keys'] ) ? $settings['api_keys'] : array() );
+
+		if ( empty( $settings['api_keys'] ) && ! empty( $settings['api_key'] ) ) {
+			$legacy_model = ( 'custom' === $settings['provider'] && ! empty( $settings['custom_model'] ) ) ? $settings['custom_model'] : $settings['model'];
+			$legacy_slot  = self::api_key_slot( $settings['provider'], $legacy_model );
+			if ( '' !== $legacy_slot ) {
+				$settings['api_keys'][ $legacy_slot ] = trim( (string) $settings['api_key'] );
+			}
+		}
+
+		return $settings;
+	}
+
+	/**
+	 * 生成 API Key 绑定槽位：服务商 + 模型。
+	 *
+	 * @param string $provider 服务商 key。
+	 * @param string $model    模型名。
+	 * @return string
+	 */
+	public static function api_key_slot( $provider, $model ) {
+		$provider = sanitize_key( $provider );
+		$model    = trim( (string) $model );
+
+		if ( '' === $provider || '' === $model ) {
+			return '';
+		}
+
+		return $provider . '::' . rawurlencode( $model );
+	}
+
+	/**
+	 * 清洗按模型绑定的 API Key 列表。
+	 *
+	 * @param mixed $api_keys API Key 映射。
+	 * @return array
+	 */
+	public static function sanitize_api_keys( $api_keys ) {
+		$out = array();
+
+		if ( ! is_array( $api_keys ) ) {
+			return $out;
+		}
+
+		foreach ( $api_keys as $slot => $key ) {
+			$slot = (string) $slot;
+			if ( ! preg_match( '/^[a-z0-9_-]+::[A-Za-z0-9\-\._~%]+$/', $slot ) ) {
+				continue;
+			}
+
+			if ( is_array( $key ) || is_object( $key ) ) {
+				continue;
+			}
+
+			$key = str_replace( array( "\r", "\n" ), '', trim( (string) $key ) );
+			if ( '' === $key ) {
+				continue;
+			}
+
+			$out[ $slot ] = $key;
+		}
+
+		return $out;
+	}
+
+	/**
+	 * 获取当前服务商/模型对应的 API Key。
+	 *
+	 * @param array  $settings   插件设置。
+	 * @param string $provider   服务商 key。
+	 * @param string $model      模型名。
+	 * @return string
+	 */
+	public static function get_api_key_for_model( $settings, $provider = '', $model = '' ) {
+		if ( ! is_array( $settings ) ) {
+			$settings = array();
+		}
+
+		$provider = '' !== $provider ? sanitize_key( $provider ) : ( isset( $settings['provider'] ) ? sanitize_key( $settings['provider'] ) : 'openai' );
+		if ( '' === trim( (string) $model ) ) {
+			$model = ( 'custom' === $provider && ! empty( $settings['custom_model'] ) ) ? $settings['custom_model'] : ( isset( $settings['model'] ) ? $settings['model'] : '' );
+		}
+
+		$api_keys = self::sanitize_api_keys( isset( $settings['api_keys'] ) ? $settings['api_keys'] : array() );
+		$slot     = self::api_key_slot( $provider, $model );
+		if ( '' !== $slot && isset( $api_keys[ $slot ] ) ) {
+			return $api_keys[ $slot ];
+		}
+
+		if ( empty( $api_keys ) && ! empty( $settings['api_key'] ) ) {
+			return str_replace( array( "\r", "\n" ), '', trim( (string) $settings['api_key'] ) );
+		}
+
+		return '';
 	}
 
 	/**
@@ -116,6 +210,7 @@ class WPAIAS_Plugin {
 			'custom_endpoint'    => '',
 			'custom_model'       => '',
 			'api_key'            => '',
+			'api_keys'           => array(),
 			'temperature'        => 0.7,
 			'max_tokens'         => 512,
 			'prompt'             => '你是一位专业的中文文章编辑助手，请用简洁、客观、流畅的中文为以下文章生成一段摘要，字数控制在 {WORDS} 字以内，不要使用 Markdown 标记，不要重复标题，直接输出摘要正文：\n\n{CONTENT}',

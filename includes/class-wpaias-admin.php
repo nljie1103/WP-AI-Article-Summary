@@ -129,6 +129,7 @@ class WPAIAS_Admin {
 					'ajax_url'   => admin_url( 'admin-ajax.php' ),
 					'nonce'      => wp_create_nonce( 'wpaias_admin_nonce' ),
 					'providers'  => WPAIAS_Providers::js_map(),
+					'api_keys'   => $is_settings_page ? WPAIAS_Plugin::get_settings()['api_keys'] : array(),
 					'i18n'       => array(
 						'testing'    => __( '正在测试…', 'wp-ai-article-summary' ),
 						'test_ok'    => __( '连通成功！', 'wp-ai-article-summary' ),
@@ -247,8 +248,28 @@ class WPAIAS_Admin {
 			if ( isset( $input['custom_model'] ) ) {
 				$out['custom_model'] = sanitize_text_field( $input['custom_model'] );
 			}
+			$api_keys = isset( $out['api_keys'] ) && is_array( $out['api_keys'] ) ? $out['api_keys'] : array();
+			if ( isset( $input['api_keys_json'] ) && is_string( $input['api_keys_json'] ) ) {
+				$decoded = json_decode( wp_unslash( $input['api_keys_json'] ), true );
+				if ( is_array( $decoded ) ) {
+					$api_keys = $decoded;
+				}
+			}
+			if ( isset( $input['api_keys'] ) && is_array( $input['api_keys'] ) ) {
+				$api_keys = array_merge( $api_keys, $input['api_keys'] );
+			}
+			$out['api_keys'] = WPAIAS_Plugin::sanitize_api_keys( $api_keys );
 			if ( isset( $input['api_key'] ) ) {
 				$out['api_key'] = trim( (string) $input['api_key'] );
+				$slot_model     = ( 'custom' === $out['provider'] && ! empty( $out['custom_model'] ) ) ? $out['custom_model'] : $out['model'];
+				$slot           = WPAIAS_Plugin::api_key_slot( $out['provider'], $slot_model );
+				if ( '' !== $slot ) {
+					if ( '' === $out['api_key'] ) {
+						unset( $out['api_keys'][ $slot ] );
+					} else {
+						$out['api_keys'][ $slot ] = str_replace( array( "\r", "\n" ), '', $out['api_key'] );
+					}
+				}
 			}
 			if ( isset( $input['temperature'] ) ) {
 				$out['temperature'] = max( 0, min( 2, (float) $input['temperature'] ) );
@@ -334,6 +355,9 @@ class WPAIAS_Admin {
 
 		$cache_count = WPAIAS_Cache::count();
 		$providers   = WPAIAS_Providers::all();
+		$key_model   = ( 'custom' === $settings['provider'] && ! empty( $settings['custom_model'] ) ) ? $settings['custom_model'] : $settings['model'];
+		$current_key = WPAIAS_Plugin::get_api_key_for_model( $settings, $settings['provider'], $key_model );
+		$api_keys_json = wp_json_encode( isset( $settings['api_keys'] ) ? $settings['api_keys'] : array() );
 		?>
 		<div class="wrap wpaias-wrap">
 			<h1 class="wpaias-title">
@@ -540,8 +564,13 @@ class WPAIAS_Admin {
 						<tr>
 							<th><label><?php esc_html_e( 'API Key', 'wp-ai-article-summary' ); ?></label></th>
 							<td>
-								<input type="password" class="regular-text" id="wpaias-api-key" name="<?php echo esc_attr( $opt ); ?>[api_key]" value="<?php echo esc_attr( $settings['api_key'] ); ?>" autocomplete="off">
+								<input type="hidden" id="wpaias-api-keys-json" name="<?php echo esc_attr( $opt ); ?>[api_keys_json]" value="<?php echo esc_attr( $api_keys_json ); ?>">
+								<input type="password" class="regular-text" id="wpaias-api-key" name="<?php echo esc_attr( $opt ); ?>[api_key]" value="<?php echo esc_attr( $current_key ); ?>" autocomplete="off">
 								<button type="button" class="button" id="wpaias-toggle-key"><?php esc_html_e( '显示/隐藏', 'wp-ai-article-summary' ); ?></button>
+								<p class="description">
+									<?php esc_html_e( '当前输入框只绑定当前服务商 + 模型；切换模型会自动切换到对应的 API Key。', 'wp-ai-article-summary' ); ?>
+									<span id="wpaias-key-binding-label" class="wpaias-key-binding-label"></span>
+								</p>
 							</td>
 						</tr>
 						<tr>
@@ -838,19 +867,21 @@ class WPAIAS_Admin {
 		$settings = WPAIAS_Plugin::get_settings();
 
 		// 允许临时表单参数覆盖。
+		$test_provider = isset( $_POST['provider'] ) ? sanitize_key( wp_unslash( $_POST['provider'] ) ) : $settings['provider'];
+		$test_model    = isset( $_POST['model'] ) ? sanitize_text_field( wp_unslash( $_POST['model'] ) ) : $settings['model'];
+		if ( 'custom' === $test_provider && empty( $test_model ) ) {
+			$test_model = isset( $_POST['custom_model'] ) ? sanitize_text_field( wp_unslash( $_POST['custom_model'] ) ) : $settings['custom_model'];
+		}
+
 		$overrides = array(
-			'provider'    => isset( $_POST['provider'] ) ? sanitize_key( wp_unslash( $_POST['provider'] ) ) : $settings['provider'],
-			'model'       => isset( $_POST['model'] ) ? sanitize_text_field( wp_unslash( $_POST['model'] ) ) : $settings['model'],
-			'api_key'     => isset( $_POST['api_key'] ) ? trim( (string) wp_unslash( $_POST['api_key'] ) ) : $settings['api_key'],
+			'provider'    => $test_provider,
+			'model'       => $test_model,
+			'api_key'     => isset( $_POST['api_key'] ) ? trim( (string) wp_unslash( $_POST['api_key'] ) ) : WPAIAS_Plugin::get_api_key_for_model( $settings, $test_provider, $test_model ),
 			'endpoint'    => isset( $_POST['endpoint'] ) ? esc_url_raw( wp_unslash( $_POST['endpoint'] ) ) : $settings['custom_endpoint'],
 			'temperature' => isset( $_POST['temperature'] ) ? (float) wp_unslash( $_POST['temperature'] ) : $settings['temperature'],
 			'max_tokens'  => 32,
 			'prompt'      => '请回复"ok"两个字符，用于连通性测试。',
 		);
-
-		if ( 'custom' === $overrides['provider'] && empty( $overrides['model'] ) ) {
-			$overrides['model'] = isset( $_POST['custom_model'] ) ? sanitize_text_field( wp_unslash( $_POST['custom_model'] ) ) : $settings['custom_model'];
-		}
 
 		$result = WPAIAS_API::generate_summary( '这是一段用于连通性测试的内容。', $settings, $overrides );
 

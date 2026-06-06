@@ -8,10 +8,13 @@
 	var WPAIAS = window.WPAIAS_ADMIN || {};
 	var providers = WPAIAS.providers || {};
 	var i18n = WPAIAS.i18n || {};
+	var apiKeys = $.extend( {}, WPAIAS.api_keys || {} );
+	var activeKeySlot = '';
 
 	function init() {
 		bindProviderChange();
 		bindToggleKey();
+		bindApiKeyActions();
 		bindTestConnection();
 		bindCacheActions();
 		bindMetaBoxActions();
@@ -22,6 +25,7 @@
 		if ( $prov.length ) {
 			loadModelOptions( $prov.val(), true );
 			toggleCustomRows( $prov.val() );
+			loadApiKeyForCurrentSelection();
 		}
 		// 在线更新页：自动检查一次。
 		if ( $( '#wpaias-check-update' ).length ) {
@@ -190,11 +194,101 @@
 		}
 	}
 
+	function rfc3986Encode( value ) {
+		return encodeURIComponent( value ).replace( /[!'()*]/g, function ( c ) {
+			return '%' + c.charCodeAt( 0 ).toString( 16 ).toUpperCase();
+		} );
+	}
+
+	function currentProvider() {
+		return $( '#wpaias-provider' ).val() || '';
+	}
+
+	function currentModel() {
+		if ( currentProvider() === 'custom' ) {
+			return ( $( '#wpaias-custom-model' ).val() || '' ).trim();
+		}
+		return $( '#wpaias-model' ).val() || '';
+	}
+
+	function apiKeySlot( providerKey, modelName ) {
+		modelName = ( modelName || '' ).trim();
+		if ( ! providerKey || ! modelName ) {
+			return '';
+		}
+		return providerKey + '::' + rfc3986Encode( modelName );
+	}
+
+	function syncApiKeysJson() {
+		var $json = $( '#wpaias-api-keys-json' );
+		if ( $json.length ) {
+			$json.val( JSON.stringify( apiKeys ) );
+		}
+	}
+
+	function storeCurrentApiKey( useCurrentSelection ) {
+		var $key = $( '#wpaias-api-key' );
+		if ( ! $key.length ) return;
+
+		var slot = useCurrentSelection ? apiKeySlot( currentProvider(), currentModel() ) : activeKeySlot;
+		if ( ! slot ) return;
+
+		var value = $key.val() || '';
+		if ( value ) {
+			apiKeys[ slot ] = value;
+		} else {
+			delete apiKeys[ slot ];
+		}
+		syncApiKeysJson();
+	}
+
+	function loadApiKeyForCurrentSelection() {
+		var $key = $( '#wpaias-api-key' );
+		if ( ! $key.length ) return;
+
+		var providerKey = currentProvider();
+		var modelName = currentModel();
+		var slot = apiKeySlot( providerKey, modelName );
+		activeKeySlot = slot;
+
+		if ( slot && Object.prototype.hasOwnProperty.call( apiKeys, slot ) ) {
+			$key.val( apiKeys[ slot ] );
+		} else {
+			$key.val( '' );
+		}
+
+		var label = modelName ? providerKey + ' / ' + modelName : providerKey;
+		$( '#wpaias-key-binding-label' ).text( label ? '当前绑定：' + label : '' );
+		syncApiKeysJson();
+	}
+
+	function bindApiKeyActions() {
+		$( document ).on( 'change', '#wpaias-model', function () {
+			storeCurrentApiKey( false );
+			loadApiKeyForCurrentSelection();
+		} );
+
+		$( document ).on( 'change blur', '#wpaias-custom-model', function () {
+			storeCurrentApiKey( false );
+			loadApiKeyForCurrentSelection();
+		} );
+
+		$( document ).on( 'input change', '#wpaias-api-key', function () {
+			storeCurrentApiKey( false );
+		} );
+
+		$( document ).on( 'submit', '#wpaias-form', function () {
+			storeCurrentApiKey( true );
+		} );
+	}
+
 	function bindProviderChange() {
 		$( document ).on( 'change', '#wpaias-provider', function () {
+			storeCurrentApiKey( false );
 			var key = $( this ).val();
 			loadModelOptions( key, false );
 			toggleCustomRows( key );
+			loadApiKeyForCurrentSelection();
 		} );
 	}
 
@@ -214,12 +308,13 @@
 
 			$res.removeClass( 'ok fail' ).text( i18n.testing || '...' );
 			$btn.prop( 'disabled', true );
+			storeCurrentApiKey( true );
 
 			var data = {
 				action: 'wpaias_test_connection',
 				nonce: WPAIAS.nonce,
-				provider: $( '#wpaias-provider' ).val(),
-				model: $( '#wpaias-model' ).val() || $( '#wpaias-custom-model' ).val(),
+				provider: currentProvider(),
+				model: currentModel(),
 				api_key: $( '#wpaias-api-key' ).val(),
 				endpoint: $( '#wpaias-custom-endpoint' ).val(),
 				custom_model: $( '#wpaias-custom-model' ).val()

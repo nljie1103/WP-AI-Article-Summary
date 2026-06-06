@@ -4,7 +4,7 @@ Tags: ai, summary, openai, gemini, deepseek, claude, qwen, kimi, doubao, glm, an
 Requires at least: 5.8
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,7 +13,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 == Description ==
 
 * 自动在文章顶部（标题下方、正文上方）插入 AI 智能摘要
-* 三级联动：API 服务商 → 模型 → API Key（OpenAI / Gemini / DeepSeek / Claude / Kimi / 通义千问 / 文心一言 / 豆包 / 火山方舟 / 星火 / GLM / 360 / Mistral / Grok / OpenRouter / 自定义接口）
+* 三级联动：API 服务商 → 模型 → 独立 API Key（OpenAI / Gemini / DeepSeek / Claude / Kimi / 通义千问 / 文心一言 / 豆包 / 火山方舟 / 星火 / GLM / 360 / Mistral / Grok / OpenRouter / 自定义接口）
 * 内置 10 种文字动画特效（打字机、淡入、滑入、缩放、弹跳、逐行渐入、霓虹呼吸 ...）
 * 全站缓存 + 单文章缓存 + 编辑自动清缓存 + 后台精细化管理
 * 暗黑极简卡片风格，自适应移动端，兼容 Zibll、Astra、Divi 等主流主题
@@ -26,6 +26,11 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 3. 在左侧菜单「首页与加载开屏」中配置 API 与样式
 
 == Changelog ==
+
+= 1.0.7 =
+* 修复：不同服务商 / 模型共用同一个 API Key，导致切换模型时必须反复改 Key 的问题。
+* 新增：API Key 按「服务商 + 模型」独立保存，切换模型会自动加载对应 Key。
+* 兼容：旧版本已保存的单个 API Key 会自动迁移到当前选中的服务商 / 模型，不会升级后丢失。
 
 = 1.0.6 =
 * 更新多家 AI 服务商的默认接口地址与模型预设，移除明显过期的旧模型。

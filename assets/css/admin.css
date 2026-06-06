@@ -69,6 +69,13 @@
 .wpaias-test-result.ok   { background: #e7f5e7; color: #1f7a1f; }
 .wpaias-test-result.fail { background: #fde8e8; color: #b32424; }
 
+.wpaias-key-binding-label {
+	display: inline-block;
+	margin-left: 8px;
+	color: #2271b1;
+	font-weight: 600;
+}
+
 /* 动画选项卡片化 */
 .wpaias-anim-item {
 	display: inline-block; margin: 4px 8px 4px 0; padding: 8px 14px;

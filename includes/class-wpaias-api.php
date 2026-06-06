@@ -47,7 +47,7 @@ class WPAIAS_API {
 		}
 
 		$model      = isset( $overrides['model'] ) ? $overrides['model'] : ( isset( $settings['model'] ) ? $settings['model'] : '' );
-		$api_key    = isset( $overrides['api_key'] ) ? $overrides['api_key'] : ( isset( $settings['api_key'] ) ? $settings['api_key'] : '' );
+		$api_key    = array_key_exists( 'api_key', $overrides ) ? $overrides['api_key'] : null;
 		$endpoint   = isset( $overrides['endpoint'] ) ? $overrides['endpoint'] : ( isset( $settings['custom_endpoint'] ) ? $settings['custom_endpoint'] : '' );
 		$temperature = isset( $overrides['temperature'] ) ? (float) $overrides['temperature'] : (float) ( isset( $settings['temperature'] ) ? $settings['temperature'] : 0.7 );
 		$max_tokens  = isset( $overrides['max_tokens'] ) ? (int) $overrides['max_tokens'] : (int) ( isset( $settings['max_tokens'] ) ? $settings['max_tokens'] : 512 );
@@ -72,6 +72,11 @@ class WPAIAS_API {
 				$endpoint = $provider['endpoint'];
 			}
 		}
+
+		if ( null === $api_key ) {
+			$api_key = WPAIAS_Plugin::get_api_key_for_model( $settings, $provider_key, $model );
+		}
+		$api_key = str_replace( array( "\r", "\n" ), '', trim( (string) $api_key ) );
 
 		// 自动补全 endpoint：OpenAI 兼容协议下用户只填写了 base URL 时，自动追加 /chat/completions。
 		$format = isset( $provider['format'] ) ? $provider['format'] : 'openai';
