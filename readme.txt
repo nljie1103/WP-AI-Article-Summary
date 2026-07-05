@@ -1,10 +1,10 @@
-=== 九流 - AI智能文章摘要特效插件 ===
+=== 九流 AI 文章摘要 ===
 Contributors: jiuliu
 Tags: ai, summary, openai, gemini, deepseek, claude, qwen, kimi, doubao, glm, animation, typewriter, cache
 Requires at least: 5.8
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,9 +23,14 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 1. 把整个 `wp-ai-article-summary` 目录上传到 `/wp-content/plugins/`
 2. 在 WP 后台 → 插件 中启用
-3. 在左侧菜单「首页与加载开屏」中配置 API 与样式
+3. 在左侧菜单「AI 文章摘要」中配置 API 与样式
 
 == Changelog ==
+
+= 1.0.9 =
+* 统一插件显示名称为“九流 AI 文章摘要”。
+* 统一 Plugin URI、后台菜单图标与设置页标题区样式。
+* 修正 readme 中错误的后台菜单名称。
 
 = 1.0.8 =
 * 清理旧版全局 `api_key` 设置项：默认配置、保存逻辑、表单字段与兼容兜底均已移除，读取 / 保存时会剔除旧字段。

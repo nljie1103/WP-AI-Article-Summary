@@ -3,34 +3,54 @@
    ========================================================================== */
 .wpaias-wrap { max-width: 1080px; }
 
-.wpaias-title {
-	display: flex;
+.jiuliu-admin-header {
 	align-items: center;
-	gap: 8px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(0,0,0,.04);
+	display: flex;
+	gap: 16px;
+	justify-content: space-between;
+	margin: 16px 0 18px;
+	padding: 18px 20px;
+}
+.jiuliu-admin-header h1 {
+	align-items: center;
+	display: flex;
+	gap: 10px;
+	font-size: 24px !important;
 	font-weight: 600;
+	line-height: 1.25;
+	margin: 0 !important;
 }
-.wpaias-title .dashicons {
+.jiuliu-admin-header .dashicons {
 	color: #2271b1;
-	font-size: 26px;
-	width: 26px;
-	height: 26px;
+	font-size: 28px;
+	height: 28px;
+	width: 28px;
 }
-.wpaias-title .wpaias-ver {
-	background: #2271b1;
-	color: #fff;
-	font-size: 12px;
-	padding: 2px 8px;
-	border-radius: 10px;
-	margin-left: 6px;
-	font-weight: 500;
+.jiuliu-admin-subtitle {
+	color: #646970;
+	font-size: 14px;
+	line-height: 1.6;
+	margin: 6px 0 0;
 }
-.wpaias-author {
-	color: #888;
-	margin: 4px 0 18px;
-	font-size: 13px;
+.jiuliu-version-badge {
+	background: #f0f6fc;
+	border: 1px solid #c5d9ed;
+	border-radius: 999px;
+	color: #135e96;
+	font-weight: 600;
+	padding: 5px 10px;
+	white-space: nowrap;
 }
-.wpaias-author a { color: #2271b1; text-decoration: none; }
-.wpaias-author a:hover { text-decoration: underline; }
+@media (max-width: 782px) {
+	.jiuliu-admin-header {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}
 
 .wpaias-tabs { margin-bottom: 18px; }
 

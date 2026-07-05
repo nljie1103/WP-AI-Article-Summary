@@ -1,6 +1,6 @@
-# 九流 - AI 智能文章摘要特效插件 (WP AI Article Summary)
+# 九流 AI 文章摘要 (WP AI Article Summary)
 
-> 作者：[九流](https://www.jiuliu.org) · 版本：1.0.8 · License：GPLv2+
+> 作者：[九流](https://www.jiuliu.org) · 版本：1.0.9 · License：GPLv2+
 
 一款高质量、高性能、可商用的 WordPress 插件。自动在文章顶部（标题下方、正文上方）插入 **AI 智能摘要**，支持 **16 家主流厂商**、**三级联动模型选择**、**10 种文字动画特效**、**完整缓存系统** 与 **暗黑极简卡片风格**。
 
@@ -76,7 +76,7 @@
 - **动画特效**：10 种动画选择 + 时长 / 速度 / 光标色 / 自定义 CSS
 - **缓存管理**：当前缓存数 / 清空全部 / 按 ID 清空 / 过期时间
 
-菜单图标：`dashicons-animation`，位于「外观」与「插件」之间。
+菜单图标：`dashicons-admin-customizer`，位于「外观」与「插件」之间。
 
 ### 📝 编辑器侧边栏
 
@@ -109,7 +109,7 @@ git clone https://github.com/nljie1103/WP-AI-Article-Summary.git wp-ai-article-s
 或下载 ZIP，把整个仓库内容放进 `/wp-content/plugins/wp-ai-article-summary/`（目录名可自定义），然后：
 
 1. 后台「插件」中启用
-2. 左侧菜单「首页与加载开屏」中配置 API、动画、缓存
+2. 左侧菜单「AI 文章摘要」中配置 API、动画、缓存
 
 兼容：WordPress **5.8+** · PHP **7.4+** · 现代浏览器全兼容。
 

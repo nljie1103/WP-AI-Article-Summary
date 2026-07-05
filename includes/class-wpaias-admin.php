@@ -68,12 +68,12 @@ class WPAIAS_Admin {
 	 */
 	public function add_menu() {
 		add_menu_page(
-			__( 'AI智能文章摘要特效插件', 'wp-ai-article-summary' ),
-			__( 'AI智能文章摘要特效插件', 'wp-ai-article-summary' ),
+			__( '九流 AI 文章摘要', 'wp-ai-article-summary' ),
+			__( 'AI 文章摘要', 'wp-ai-article-summary' ),
 			'manage_options',
 			self::MENU_SLUG,
 			array( $this, 'render_settings_page' ),
-			'dashicons-animation',
+			'dashicons-admin-customizer',
 			63 // 外观=60, 插件=65，63 居中。
 		);
 	}
@@ -349,15 +349,13 @@ class WPAIAS_Admin {
 		$api_keys_json = wp_json_encode( isset( $settings['api_keys'] ) ? $settings['api_keys'] : array() );
 		?>
 		<div class="wrap wpaias-wrap">
-			<h1 class="wpaias-title">
-				<span class="dashicons dashicons-animation"></span>
-				<?php esc_html_e( '九流 — AI智能文章摘要特效插件', 'wp-ai-article-summary' ); ?>
-				<span class="wpaias-ver">v<?php echo esc_html( WPAIAS_VERSION ); ?></span>
-			</h1>
-			<p class="wpaias-author">
-				<?php esc_html_e( '作者：九流', 'wp-ai-article-summary' ); ?>
-				· <a href="https://www.jiuliu.org" target="_blank" rel="noopener">www.jiuliu.org</a>
-			</p>
+			<div class="jiuliu-admin-header">
+				<div>
+					<h1><span class="dashicons dashicons-admin-customizer"></span><?php esc_html_e( '九流 AI 文章摘要', 'wp-ai-article-summary' ); ?></h1>
+					<p class="jiuliu-admin-subtitle"><?php esc_html_e( '自动在文章顶部插入 AI 智能摘要，并支持缓存、样式预览和在线更新。', 'wp-ai-article-summary' ); ?></p>
+				</div>
+				<span class="jiuliu-version-badge">v<?php echo esc_html( WPAIAS_VERSION ); ?></span>
+			</div>
 
 			<h2 class="nav-tab-wrapper wpaias-tabs">
 				<?php foreach ( $tabs as $key => $label ) : ?>
