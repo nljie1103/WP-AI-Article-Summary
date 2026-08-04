@@ -44,3 +44,4 @@ jobs:
           git add -A
           git commit -m 'docs: move maintenance to wp-assistant'
           git push origin HEAD:main
+# retry 2026-08-04
